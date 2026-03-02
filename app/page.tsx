@@ -1,4 +1,10 @@
+import { Banner } from "@/components/banner";
 
 export default function Page() {
-return <div>home page</div>
+  return (
+    <>
+      <Banner />
+      <div>home page</div>
+    </>
+  );
 }
