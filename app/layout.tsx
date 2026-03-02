@@ -37,9 +37,11 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <ShippingBar />
-          <SearchBar />
-          <NuqsAdapter>{children}</NuqsAdapter>
+          <NuqsAdapter>
+            <ShippingBar />
+            <SearchBar />
+            {children}
+          </NuqsAdapter>
         </ThemeProvider>
       </body>
     </html>
