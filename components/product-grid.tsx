@@ -1,16 +1,11 @@
 "use client";
 
-import { useQuery } from "@tanstack/react-query";
 import { Heart } from "lucide-react";
 import Image from "next/image";
-import { useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { usePopularity } from "@/hooks/use-popularity";
-import { useProductFiltersQueryState } from "@/hooks/use-product-query-states";
-import { useSearch } from "@/hooks/use-search";
+import { useProducts } from "@/hooks/use-products";
 import { useViewMode } from "@/hooks/use-view-mode";
-import { getProducts } from "@/lib/services/product-service";
 import type { Product } from "@/types/product";
 
 const formatPrice = (price: number) => `SAR ${price.toFixed(2)}`;
@@ -27,7 +22,7 @@ const ProductCard = ({ product, isListView }: { product: Product; isListView: bo
             : "relative overflow-hidden rounded-xl bg-muted"
         }
       >
-        <div className="aspect-4/5">
+        <div className="relative aspect-4/5">
           <Image
             src={product.images[0]}
             alt={product.name}
@@ -84,33 +79,8 @@ const ProductCardSkeleton = ({ isListView }: { isListView: boolean }) => (
 );
 
 export const ProductGrid = () => {
-  const [filters] = useProductFiltersQueryState();
-  const { sortOption } = usePopularity();
   const { viewMode, isListView } = useViewMode();
-  const { searchQuery } = useSearch();
-
-  const { data, isPending, isError } = useQuery({
-    queryKey: ["products", filters, sortOption],
-    queryFn: () =>
-      getProducts({
-        filter: {
-          brand: filters.brand && filters.brand.length ? filters.brand : undefined,
-          minPrice: filters.minPrice,
-          maxPrice: Number.isFinite(filters.maxPrice) ? filters.maxPrice : undefined,
-          sizes: filters.size && filters.size.length ? filters.size : undefined,
-          colors: filters.color && filters.color.length ? filters.color : undefined,
-        },
-        sort: sortOption,
-      }),
-  });
-
-  const products = useMemo(() => {
-    const list = data?.products ?? [];
-    const normalizedSearch = searchQuery.trim().toLowerCase();
-    if (!normalizedSearch) return list;
-
-    return list.filter((product) => product.name.toLowerCase().includes(normalizedSearch));
-  }, [data?.products, searchQuery]);
+  const { products, isPending, isError } = useProducts();
 
   if (isError) {
     return (
