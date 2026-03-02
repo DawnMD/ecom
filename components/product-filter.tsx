@@ -39,7 +39,8 @@ export const ProductFilter = () => {
   const getColorSwatchStyle = (color: string) => ({
     backgroundColor: color.toLowerCase(),
   });
-  const loadingPriceValue = 0;
+  const loadingPriceMin = 0;
+  const loadingPriceMax = 1;
 
   return (
     <div className="bg-accent p-1.5 rounded-md flex flex-col gap-2">
@@ -74,12 +75,12 @@ export const ProductFilter = () => {
         <Slider
           value={
             isLoadingFilters
-              ? [loadingPriceValue, loadingPriceValue]
+              ? [loadingPriceMin, loadingPriceMax]
               : [selectedMinPrice, selectedMaxPrice]
           }
           onValueChange={handlePriceRangeChange}
-          min={isLoadingFilters ? loadingPriceValue : priceMin}
-          max={isLoadingFilters ? loadingPriceValue : priceMax}
+          min={isLoadingFilters ? loadingPriceMin : priceMin}
+          max={isLoadingFilters ? loadingPriceMax : priceMax}
           step={1}
           disabled={isLoadingFilters}
         />
@@ -91,7 +92,7 @@ export const ProductFilter = () => {
               type="number"
               min={priceMin}
               max={priceMax}
-              value={isLoadingFilters ? loadingPriceValue : selectedMinPrice}
+              value={isLoadingFilters ? loadingPriceMin : selectedMinPrice}
               onChange={(event) => handleMinPriceChange(event.target.value)}
               disabled={isLoadingFilters}
             />
@@ -103,7 +104,7 @@ export const ProductFilter = () => {
               type="number"
               min={priceMin}
               max={priceMax}
-              value={isLoadingFilters ? loadingPriceValue : selectedMaxPrice}
+              value={isLoadingFilters ? loadingPriceMax : selectedMaxPrice}
               onChange={(event) => handleMaxPriceChange(event.target.value)}
               disabled={isLoadingFilters}
             />
