@@ -1,3 +1,5 @@
+"use client";
+
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -22,8 +24,11 @@ import {
   ShoppingCart,
 } from "lucide-react";
 import { ModeToggle } from "@/components/mode-toggle";
+import { useSearch } from "@/hooks/use-search";
 
 export const SearchBar = () => {
+  const { searchQuery, setSearchQuery } = useSearch();
+
   return (
     <div className="p-4">
       <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
@@ -84,6 +89,8 @@ export const SearchBar = () => {
               <InputGroupInput
                 id="input-group-search"
                 placeholder="What are you looking for?"
+                value={searchQuery}
+                onChange={(event) => setSearchQuery(event.target.value)}
               />
               <InputGroupAddon align="inline-start">
                 <SearchIcon size={16} />
