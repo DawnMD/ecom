@@ -1,16 +1,11 @@
 "use client";
 
-import { parseAsString, useQueryState } from "nuqs";
+import { useSearchQueryState } from "@/hooks/use-product-query-states";
 
 const DEFAULT_SEARCH_QUERY = "";
 
 export const useSearch = () => {
-  const [searchQuery, setSearchQuery] = useQueryState(
-    "search",
-    parseAsString.withDefault(DEFAULT_SEARCH_QUERY).withOptions({
-      history: "replace",
-    }),
-  );
+  const [searchQuery, setSearchQuery] = useSearchQueryState();
 
   return {
     searchQuery,

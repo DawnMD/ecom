@@ -1,19 +1,10 @@
 "use client";
 
-import { parseAsStringLiteral, useQueryState } from "nuqs";
-
-const VIEW_MODES = ["list", "grid"] as const;
-const DEFAULT_VIEW_MODE = "grid";
-
-export type ViewMode = (typeof VIEW_MODES)[number];
+import { useViewModeQueryState } from "@/hooks/use-product-query-states";
+export type { ViewMode } from "@/hooks/use-product-query-states";
 
 export const useViewMode = () => {
-  const [viewMode, setViewMode] = useQueryState(
-    "view",
-    parseAsStringLiteral(VIEW_MODES).withDefault(DEFAULT_VIEW_MODE).withOptions({
-      history: "replace",
-    }),
-  );
+  const [viewMode, setViewMode] = useViewModeQueryState();
 
   return {
     viewMode,
