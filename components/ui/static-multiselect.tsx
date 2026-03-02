@@ -10,6 +10,7 @@ import {
   useState,
 } from "react";
 
+import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 
 export type StaticMultiselectOption = {
@@ -257,11 +258,14 @@ function StaticMultiselectLoading({
   className,
   children = "Loading...",
   ...props
-}: React.ComponentProps<"p">) {
+}: React.ComponentProps<"div">) {
   return (
-    <p className={cn("py-6 text-center text-sm", className)} {...props}>
-      {children}
-    </p>
+    <div className={cn("space-y-2 p-2", className)} {...props}>
+      <span className="sr-only">{children}</span>
+      <Skeleton className="h-8 w-full rounded-sm" />
+      <Skeleton className="h-8 w-full rounded-sm" />
+      <Skeleton className="h-8 w-full rounded-sm" />
+    </div>
   );
 }
 

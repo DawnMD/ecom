@@ -1,5 +1,6 @@
 import { SearchBar } from "@/components/search-bar";
 import { ShippingBar } from "@/components/shipping-bar";
+import { QueryProvider } from "@/components/query-provider";
 import { ThemeProvider } from "@/components/theme-provider";
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
@@ -37,11 +38,13 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <NuqsAdapter>
-            <ShippingBar />
-            <SearchBar />
-            {children}
-          </NuqsAdapter>
+          <QueryProvider>
+            <NuqsAdapter>
+              <ShippingBar />
+              <SearchBar />
+              {children}
+            </NuqsAdapter>
+          </QueryProvider>
         </ThemeProvider>
       </body>
     </html>
