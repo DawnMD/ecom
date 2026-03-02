@@ -21,6 +21,7 @@ import {
   SearchIcon,
   ShoppingCart,
 } from "lucide-react";
+import { ModeToggle } from "@/components/mode-toggle";
 
 export const SearchBar = () => {
   return (
@@ -41,7 +42,10 @@ export const SearchBar = () => {
                     className="flex items-center justify-center rounded-full border bg-background p-0"
                   >
                     <Avatar className="size-7">
-                      <AvatarImage src="https://flagcdn.com/us.svg" alt="United States" />
+                      <AvatarImage
+                        src="https://flagcdn.com/us.svg"
+                        alt="United States"
+                      />
                     </Avatar>
                     <ChevronDownIcon className="ml-1 hidden size-4 md:inline-block" />
                   </Button>
@@ -66,7 +70,9 @@ export const SearchBar = () => {
                 }
               />
               <DropdownMenuContent>
-                <DropdownMenuItem variant={"destructive"}>Logout</DropdownMenuItem>
+                <DropdownMenuItem variant={"destructive"}>
+                  Logout
+                </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
@@ -87,7 +93,10 @@ export const SearchBar = () => {
 
           <div className="flex items-center gap-2 md:gap-4">
             <Button variant={"ghost"} size={"icon"} className="relative">
-              <Badge variant={"destructive"} className="absolute -top-2 -right-2">
+              <Badge
+                variant={"destructive"}
+                className="absolute -top-2 -right-2"
+              >
                 <span className="md:hidden">20</span>
                 <span className="hidden md:inline">0</span>
               </Badge>
@@ -95,7 +104,10 @@ export const SearchBar = () => {
               <span className="sr-only">Cart</span>
             </Button>
             <Button variant={"ghost"} size={"icon"} className="relative">
-              <Badge variant={"destructive"} className="absolute -top-2 -right-2">
+              <Badge
+                variant={"destructive"}
+                className="absolute -top-2 -right-2"
+              >
                 <span className="md:hidden">3</span>
                 <span className="hidden md:inline">0</span>
               </Badge>
@@ -112,7 +124,10 @@ export const SearchBar = () => {
                     className="hidden items-center gap-2 md:flex"
                   >
                     <Avatar size="sm">
-                      <AvatarImage src="https://github.com/shadcn.png" />
+                      <AvatarImage
+                        src="https://flagcdn.com/us.svg"
+                        alt="United States"
+                      />
                     </Avatar>
                     <span>English</span>
                     <ChevronDownIcon className="size-4" />
@@ -123,6 +138,8 @@ export const SearchBar = () => {
                 <DropdownMenuItem>English</DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
+
+            <ModeToggle />
 
             <Separator orientation="vertical" className="hidden md:block" />
 
@@ -146,7 +163,9 @@ export const SearchBar = () => {
                 }
               />
               <DropdownMenuContent>
-                <DropdownMenuItem variant={"destructive"}>Logout</DropdownMenuItem>
+                <DropdownMenuItem variant={"destructive"}>
+                  Logout
+                </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
