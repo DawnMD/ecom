@@ -4,7 +4,7 @@ export const ShippingBar = () => {
   return (
     <div className="bg-foreground text-background p-1.5">
       <div className="flex items-center justify-between text-xs">
-        <div className="flex items-center gap-2 text-muted-foreground">
+        <div className="flex items-center gap-2">
           <Map size={16} />
           <span>Ship to IND</span>
         </div>
