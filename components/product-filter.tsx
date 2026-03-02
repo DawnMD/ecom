@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Slider } from "@/components/ui/slider";
 import {
   StaticMultiselect,
@@ -20,6 +21,8 @@ export const ProductFilter = () => {
   const {
     filters,
     brandOptions,
+    sizeOptions,
+    colorOptions,
     isLoadingFilters,
     selectedMinPrice,
     selectedMaxPrice,
@@ -32,6 +35,11 @@ export const ProductFilter = () => {
     setSizeFilter,
     setColorFilter,
   } = useFilters();
+
+  const getColorSwatchStyle = (color: string) => ({
+    backgroundColor: color.toLowerCase(),
+  });
+  const loadingPriceValue = 0;
 
   return (
     <div className="bg-accent p-1.5 rounded-md flex flex-col gap-2">
@@ -61,13 +69,17 @@ export const ProductFilter = () => {
       </Card>
       <Card className="p-2 space-y-3">
         {isLoadingFilters ? (
-          <p className="text-xs text-muted-foreground">Loading prices...</p>
+          <Skeleton className="h-4 w-28" />
         ) : null}
         <Slider
-          value={[selectedMinPrice, selectedMaxPrice]}
+          value={
+            isLoadingFilters
+              ? [loadingPriceValue, loadingPriceValue]
+              : [selectedMinPrice, selectedMaxPrice]
+          }
           onValueChange={handlePriceRangeChange}
-          min={priceMin}
-          max={priceMax}
+          min={isLoadingFilters ? loadingPriceValue : priceMin}
+          max={isLoadingFilters ? loadingPriceValue : priceMax}
           step={1}
           disabled={isLoadingFilters}
         />
@@ -79,7 +91,7 @@ export const ProductFilter = () => {
               type="number"
               min={priceMin}
               max={priceMax}
-              value={selectedMinPrice}
+              value={isLoadingFilters ? loadingPriceValue : selectedMinPrice}
               onChange={(event) => handleMinPriceChange(event.target.value)}
               disabled={isLoadingFilters}
             />
@@ -91,7 +103,7 @@ export const ProductFilter = () => {
               type="number"
               min={priceMin}
               max={priceMax}
-              value={selectedMaxPrice}
+              value={isLoadingFilters ? loadingPriceValue : selectedMaxPrice}
               onChange={(event) => handleMaxPriceChange(event.target.value)}
               disabled={isLoadingFilters}
             />
@@ -102,125 +114,61 @@ export const ProductFilter = () => {
         <div className="space-y-2">
           <p className="text-sm font-medium">Size</p>
           {isLoadingFilters ? (
-            <p className="text-xs text-muted-foreground">Loading sizes...</p>
-          ) : null}
-          <ToggleGroup
-            variant="outline"
-            spacing={2}
-            multiple
-            value={filters.size}
-            onValueChange={setSizeFilter}
-          >
-            <ToggleGroupItem
-              value="xs"
-              aria-label="Toggle XS"
-              disabled={isLoadingFilters}
+            <div className="flex gap-2">
+              <Skeleton className="h-8 w-14" />
+              <Skeleton className="h-8 w-14" />
+              <Skeleton className="h-8 w-14" />
+            </div>
+          ) : (
+            <ToggleGroup
+              variant="outline"
+              spacing={2}
+              multiple
+              value={filters.size}
+              onValueChange={setSizeFilter}
             >
-              XS
-            </ToggleGroupItem>
-            <ToggleGroupItem
-              value="s"
-              aria-label="Toggle S"
-              disabled={isLoadingFilters}
-            >
-              S
-            </ToggleGroupItem>
-            <ToggleGroupItem
-              value="m"
-              aria-label="Toggle M"
-              disabled={isLoadingFilters}
-            >
-              M
-            </ToggleGroupItem>
-            <ToggleGroupItem
-              value="l"
-              aria-label="Toggle L"
-              disabled={isLoadingFilters}
-            >
-              L
-            </ToggleGroupItem>
-            <ToggleGroupItem
-              value="xl"
-              aria-label="Toggle XL"
-              disabled={isLoadingFilters}
-            >
-              XL
-            </ToggleGroupItem>
-          </ToggleGroup>
+              {sizeOptions.map((size) => (
+                <ToggleGroupItem key={size} value={size} aria-label={`Toggle ${size}`}>
+                  {size}
+                </ToggleGroupItem>
+              ))}
+            </ToggleGroup>
+          )}
         </div>
         <div className="space-y-2">
           <p className="text-sm font-medium">Color</p>
           {isLoadingFilters ? (
-            <p className="text-xs text-muted-foreground">Loading colors...</p>
-          ) : null}
-          <ToggleGroup
-            variant="outline"
-            spacing={2}
-            multiple
-            value={filters.color}
-            onValueChange={setColorFilter}
-          >
-            <ToggleGroupItem
-              value="black"
-              aria-label="Toggle black"
-              className="h-8 w-8 p-0"
-              disabled={isLoadingFilters}
+            <div className="flex gap-2">
+              <Skeleton className="h-8 w-8 rounded-md" />
+              <Skeleton className="h-8 w-8 rounded-md" />
+              <Skeleton className="h-8 w-8 rounded-md" />
+              <Skeleton className="h-8 w-8 rounded-md" />
+            </div>
+          ) : (
+            <ToggleGroup
+              variant="outline"
+              spacing={2}
+              multiple
+              value={filters.color}
+              onValueChange={setColorFilter}
             >
-              <span className="sr-only">Black</span>
-              <span
-                aria-hidden
-                className="h-4 w-4 rounded-full border border-black/20 bg-black"
-              />
-            </ToggleGroupItem>
-            <ToggleGroupItem
-              value="white"
-              aria-label="Toggle white"
-              className="h-8 w-8 p-0"
-              disabled={isLoadingFilters}
-            >
-              <span className="sr-only">White</span>
-              <span
-                aria-hidden
-                className="h-4 w-4 rounded-full border border-black/20 bg-white"
-              />
-            </ToggleGroupItem>
-            <ToggleGroupItem
-              value="blue"
-              aria-label="Toggle blue"
-              className="h-8 w-8 p-0"
-              disabled={isLoadingFilters}
-            >
-              <span className="sr-only">Blue</span>
-              <span
-                aria-hidden
-                className="h-4 w-4 rounded-full border border-black/20 bg-blue-500"
-              />
-            </ToggleGroupItem>
-            <ToggleGroupItem
-              value="red"
-              aria-label="Toggle red"
-              className="h-8 w-8 p-0"
-              disabled={isLoadingFilters}
-            >
-              <span className="sr-only">Red</span>
-              <span
-                aria-hidden
-                className="h-4 w-4 rounded-full border border-black/20 bg-red-500"
-              />
-            </ToggleGroupItem>
-            <ToggleGroupItem
-              value="green"
-              aria-label="Toggle green"
-              className="h-8 w-8 p-0"
-              disabled={isLoadingFilters}
-            >
-              <span className="sr-only">Green</span>
-              <span
-                aria-hidden
-                className="h-4 w-4 rounded-full border border-black/20 bg-green-500"
-              />
-            </ToggleGroupItem>
-          </ToggleGroup>
+              {colorOptions.map((color) => (
+                <ToggleGroupItem
+                  key={color}
+                  value={color}
+                  aria-label={`Toggle ${color}`}
+                  className="h-8 w-8 p-0"
+                >
+                  <span className="sr-only">{color}</span>
+                  <span
+                    aria-hidden
+                    className="h-4 w-4 rounded-full border border-black/20"
+                    style={getColorSwatchStyle(color)}
+                  />
+                </ToggleGroupItem>
+              ))}
+            </ToggleGroup>
+          )}
         </div>
       </Card>
     </div>
