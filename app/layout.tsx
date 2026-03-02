@@ -2,6 +2,7 @@ import { ShippingBar } from "@/components/shipping-bar";
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import { SearchBar } from "@/components/search-bar";
 
 const geistSans = Geist({
   variable: "--font-sans",
@@ -29,6 +30,7 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased font-sans`}
       >
         <ShippingBar />
+        <SearchBar />
         {children}
       </body>
     </html>
