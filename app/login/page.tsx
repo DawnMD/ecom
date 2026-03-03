@@ -57,7 +57,7 @@ export default function LoginPage() {
   }, [loginQuery.next]);
 
   const redirectTargetPath = useMemo(() => {
-    const redirectUrl = new URL(nextPath, "https://local.app");
+    const redirectUrl = new URL(nextPath, "https://example.com");
 
     if (loginQuery.intent) {
       redirectUrl.searchParams.set("intent", loginQuery.intent);
