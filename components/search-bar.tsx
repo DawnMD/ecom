@@ -16,6 +16,9 @@ import {
   InputGroupInput,
 } from "@/components/ui/input-group";
 import { Separator } from "@/components/ui/separator";
+import { debounce } from "nuqs";
+import { usePathname, useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 import {
   Building,
   ChevronDownIcon,
@@ -26,8 +29,33 @@ import {
 import { ModeToggle } from "@/components/mode-toggle";
 import { useSearch } from "@/hooks/use-search";
 
+const SEARCH_DEBOUNCE_MS = 250;
+
 export const SearchBar = () => {
   const { searchQuery, setSearchQuery } = useSearch();
+  const pathname = usePathname();
+  const router = useRouter();
+  const [draftSearchQuery, setDraftSearchQuery] = useState(searchQuery);
+
+  useEffect(() => {
+    setDraftSearchQuery(searchQuery);
+  }, [searchQuery]);
+
+  const updateSearchQuery = (value: string) => {
+    setSearchQuery(value, {
+      limitUrlUpdates: debounce(SEARCH_DEBOUNCE_MS),
+    });
+  };
+
+  const navigateToResults = (value: string) => {
+    const normalizedValue = value.trim();
+    if (!normalizedValue) {
+      router.push("/");
+      return;
+    }
+
+    router.push(`/?search=${encodeURIComponent(normalizedValue)}`);
+  };
 
   return (
     <div className="p-4">
@@ -85,17 +113,36 @@ export const SearchBar = () => {
 
         <div className="flex w-full items-center gap-3 md:contents">
           <Field className="flex-1 md:mx-4 md:max-w-xl">
-            <InputGroup>
-              <InputGroupInput
-                id="input-group-search"
-                placeholder="What are you looking for?"
-                value={searchQuery}
-                onChange={(event) => setSearchQuery(event.target.value)}
-              />
-              <InputGroupAddon align="inline-start">
-                <SearchIcon size={16} />
-              </InputGroupAddon>
-            </InputGroup>
+            <form
+              onSubmit={(event) => {
+                event.preventDefault();
+                if (pathname !== "/") {
+                  navigateToResults(draftSearchQuery);
+                  return;
+                }
+
+                updateSearchQuery(draftSearchQuery);
+              }}
+            >
+              <InputGroup>
+                <InputGroupInput
+                  id="input-group-search"
+                  placeholder="What are you looking for?"
+                  value={draftSearchQuery}
+                  onChange={(event) => {
+                    const nextValue = event.target.value;
+                    setDraftSearchQuery(nextValue);
+
+                    if (pathname === "/") {
+                      updateSearchQuery(nextValue);
+                    }
+                  }}
+                />
+                <InputGroupAddon align="inline-start">
+                  <SearchIcon size={16} />
+                </InputGroupAddon>
+              </InputGroup>
+            </form>
           </Field>
 
           <div className="flex items-center gap-2 md:gap-4">
