@@ -1,10 +1,12 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { Star } from "lucide-react";
+import { Heart, Star } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useProductFiltersQueryState } from "@/hooks/use-product-query-states";
+import { useWishlistStore } from "@/stores/use-wishlist-store";
 import { cn } from "@/lib/utils";
 import { getProductById } from "@/lib/services/product-service";
 
@@ -52,6 +54,9 @@ export function ProductCommerceDetails({
   fallbackStockQuantity,
 }: ProductCommerceDetailsProps) {
   const [filters, setFilters] = useProductFiltersQueryState();
+  const wishlistProductIds = useWishlistStore((state) => state.wishlistProductIds);
+  const toggleWishlist = useWishlistStore((state) => state.toggleWishlist);
+  const hasWishlistHydrated = useWishlistStore((state) => state.hasHydrated);
   const query = useQuery({
     queryKey: ["product-commerce", productId],
     queryFn: () => getProductById(productId),
@@ -94,6 +99,7 @@ export function ProductCommerceDetails({
   }
 
   const product = query.data;
+  const isWishlisted = wishlistProductIds.includes(productId);
   const rating = product?.rating ?? fallbackRating;
   const reviewCount = product?.reviewCount ?? fallbackReviewCount;
   const price = product?.price ?? fallbackPrice;
@@ -108,12 +114,32 @@ export function ProductCommerceDetails({
 
   return (
     <>
-      <div className="mt-4 flex items-center gap-3 text-sm">
+      <div className="mt-4 flex items-center justify-between gap-3 text-sm">
         <Card size="sm" className="inline-flex items-center gap-1 rounded-full px-3 py-1 flex-row">
           <Star className="h-3.5 w-3.5" />
           {rating.toFixed(1)}
         </Card>
-        <span>{reviewCount} verified reviews</span>
+        <div className="ml-auto flex items-center gap-3">
+          <span>{reviewCount} verified reviews</span>
+          {hasWishlistHydrated ? (
+            <Button
+              type="button"
+              size="icon"
+              variant="ghost"
+              className={cn(
+                "h-8 w-8 rounded-full text-muted-foreground hover:text-foreground",
+                isWishlisted && "text-red-500 hover:text-red-600",
+              )}
+              aria-label={`${isWishlisted ? "Remove from" : "Add to"} wishlist`}
+              aria-pressed={isWishlisted}
+              onClick={() => toggleWishlist(productId)}
+            >
+              <Heart className={cn("h-4 w-4", isWishlisted && "fill-current")} />
+            </Button>
+          ) : (
+            <Skeleton className="h-8 w-8 rounded-full" />
+          )}
+        </div>
       </div>
 
       <div className="mt-6 py-5">

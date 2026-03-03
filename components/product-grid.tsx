@@ -7,12 +7,18 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useProducts } from "@/hooks/use-products";
 import { useViewMode } from "@/hooks/use-view-mode";
+import { useWishlistStore } from "@/stores/use-wishlist-store";
+import { cn } from "@/lib/utils";
 import type { Product } from "@/types/product";
 
 const formatPrice = (price: number) => `SAR ${price.toFixed(2)}`;
 
 const ProductCard = ({ product, isListView }: { product: Product; isListView: boolean }) => {
   const hasLowStock = (product.stockQuantity ?? 0) > 0;
+  const wishlistProductIds = useWishlistStore((state) => state.wishlistProductIds);
+  const toggleWishlist = useWishlistStore((state) => state.toggleWishlist);
+  const hasHydrated = useWishlistStore((state) => state.hasHydrated);
+  const isWishlisted = wishlistProductIds.includes(product.id);
 
   return (
     <article className={isListView ? "flex gap-4" : "flex flex-col"}>
@@ -62,14 +68,25 @@ const ProductCard = ({ product, isListView }: { product: Product; isListView: bo
             <p className="text-sm font-medium text-red-400">{product.stockQuantity} items left!</p>
           ) : null}
         </div>
-        <Button
-          size="icon"
-          variant="ghost"
-          className="absolute right-0 top-0 h-7 w-7 rounded-full text-muted-foreground hover:text-foreground"
-          aria-label={`Add ${product.name} to wishlist`}
-        >
-          <Heart className="h-4 w-4" />
-        </Button>
+        {hasHydrated ? (
+          <Button
+            size="icon"
+            variant="ghost"
+            className={cn(
+              "absolute right-0 top-0 h-7 w-7 rounded-full text-muted-foreground hover:text-foreground",
+              isWishlisted && "text-red-500 hover:text-red-600",
+            )}
+            aria-label={`${isWishlisted ? "Remove" : "Add"} ${product.name} ${
+              isWishlisted ? "from" : "to"
+            } wishlist`}
+            aria-pressed={isWishlisted}
+            onClick={() => toggleWishlist(product.id)}
+          >
+            <Heart className={cn("h-4 w-4", isWishlisted && "fill-current")} />
+          </Button>
+        ) : (
+          <Skeleton className="absolute right-0 top-0 h-7 w-7 rounded-full" />
+        )}
       </div>
     </article>
   );
