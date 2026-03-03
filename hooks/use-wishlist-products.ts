@@ -10,11 +10,14 @@ export const useWishlistProducts = ({
   wishlistProductIds: string[];
   hasWishlistHydrated: boolean;
 }) => {
+  const shouldFetchWishlistProducts =
+    hasWishlistHydrated && wishlistProductIds.length > 0;
+
   const wishlistProductsQuery = useQuery({
     queryKey: ["wishlist-products"],
     queryFn: () => getProducts(),
     staleTime: 60_000,
-    enabled: hasWishlistHydrated && wishlistProductIds.length > 0,
+    enabled: shouldFetchWishlistProducts,
   });
 
   const products = wishlistProductsQuery.data?.products ?? [];
@@ -26,7 +29,7 @@ export const useWishlistProducts = ({
 
   return {
     wishlistProducts,
-    isPending: wishlistProductsQuery.isPending,
-    isError: wishlistProductsQuery.isError,
+    isPending: shouldFetchWishlistProducts && wishlistProductsQuery.isPending,
+    isError: shouldFetchWishlistProducts && wishlistProductsQuery.isError,
   };
 };
