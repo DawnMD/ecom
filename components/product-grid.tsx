@@ -1,11 +1,13 @@
 "use client";
 
-import { Heart } from "lucide-react";
+import { Heart, ShoppingCart } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { InlineQueryFeedback } from "@/components/ui/inline-query-feedback";
+import { useCart } from "@/hooks/use-cart";
 import { useProducts } from "@/hooks/use-products";
 import { useViewMode } from "@/hooks/use-view-mode";
 import { useWishlistStore } from "@/stores/use-wishlist-store";
@@ -14,12 +16,56 @@ import type { Product } from "@/types/product";
 
 const formatPrice = (price: number) => `SAR ${price.toFixed(2)}`;
 
-const ProductCard = ({ product, isListView }: { product: Product; isListView: boolean }) => {
+const ProductCard = ({
+  product,
+  isListView,
+  onAddToCart,
+}: {
+  product: Product;
+  isListView: boolean;
+  onAddToCart: (productId: string, size: string) => Promise<void>;
+}) => {
   const hasLowStock = (product.stockQuantity ?? 0) > 0;
   const wishlistProductIds = useWishlistStore((state) => state.wishlistProductIds);
   const toggleWishlist = useWishlistStore((state) => state.toggleWishlist);
   const hasHydrated = useWishlistStore((state) => state.hasHydrated);
   const isWishlisted = wishlistProductIds.includes(product.id);
+  const defaultSize = product.sizes[0] ?? null;
+  const canAddToCart = Boolean(defaultSize) && product.inStock;
+  const [addFeedback, setAddFeedback] = useState<string | null>(null);
+  const feedbackTimerRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (feedbackTimerRef.current != null) {
+        window.clearTimeout(feedbackTimerRef.current);
+      }
+    };
+  }, []);
+
+  const handleAddToCart = async () => {
+    if (!defaultSize) {
+      setAddFeedback("Size unavailable");
+      return;
+    }
+    if (!product.inStock) {
+      setAddFeedback("Out of stock");
+      return;
+    }
+
+    try {
+      await onAddToCart(product.id, defaultSize);
+      setAddFeedback(`Added size ${defaultSize}`);
+    } catch {
+      setAddFeedback("Sync failed, reverted");
+    }
+    if (feedbackTimerRef.current != null) {
+      window.clearTimeout(feedbackTimerRef.current);
+    }
+    feedbackTimerRef.current = window.setTimeout(() => {
+      setAddFeedback(null);
+    }, 1800);
+  };
 
   return (
     <article className={isListView ? "flex gap-4" : "flex flex-col"}>
@@ -69,6 +115,23 @@ const ProductCard = ({ product, isListView }: { product: Product; isListView: bo
             <p className="text-sm font-medium text-red-400">{product.stockQuantity} items left!</p>
           ) : null}
         </div>
+        <div className="mt-2 flex items-center gap-2">
+          <Button
+            type="button"
+            size="sm"
+            className="h-8"
+            onClick={handleAddToCart}
+            disabled={!canAddToCart}
+          >
+            <ShoppingCart className="h-3.5 w-3.5" />
+            Add to cart
+          </Button>
+          {addFeedback ? (
+            <span className="text-xs text-muted-foreground">{addFeedback}</span>
+          ) : defaultSize ? (
+            <span className="text-xs text-muted-foreground">Size {defaultSize}</span>
+          ) : null}
+        </div>
         {hasHydrated ? (
           <Button
             size="icon"
@@ -110,6 +173,7 @@ const ProductCardSkeleton = ({ isListView }: { isListView: boolean }) => (
 export const ProductGrid = () => {
   const { viewMode, isListView } = useViewMode();
   const { products, isPending, isError, refetch } = useProducts();
+  const { addToCart } = useCart();
 
   if (isError) {
     return (
@@ -155,7 +219,12 @@ export const ProductGrid = () => {
       }
     >
       {products.map((product) => (
-        <ProductCard key={product.id} product={product} isListView={isListView} />
+        <ProductCard
+          key={product.id}
+          product={product}
+          isListView={isListView}
+          onAddToCart={(productId, size) => addToCart(productId, size, 1)}
+        />
       ))}
     </div>
   );

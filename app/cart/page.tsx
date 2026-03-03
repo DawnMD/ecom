@@ -10,10 +10,10 @@ import { buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { InlineQueryFeedback } from "@/components/ui/inline-query-feedback";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useCart } from "@/hooks/use-cart";
 import { cn } from "@/lib/utils";
 import { getProducts } from "@/lib/services/product-service";
 import { useAuthStore } from "@/stores/use-auth-store";
-import { useCartItems, useCartStore } from "@/stores/use-cart-store";
 
 const formatPrice = (price: number) =>
   `SAR ${price.toLocaleString("en-US", {
@@ -25,10 +25,7 @@ export default function CartPage() {
   const router = useRouter();
   const authUser = useAuthStore((state) => state.user);
   const hasAuthHydrated = useAuthStore((state) => state.hasHydrated);
-  const hasCartHydrated = useCartStore((state) => state.hasHydrated);
-  const items = useCartItems();
-  const removeFromCart = useCartStore((state) => state.removeFromCart);
-  const updateQuantity = useCartStore((state) => state.updateQuantity);
+  const { hasCartHydrated, items, removeFromCart, updateQuantity } = useCart();
   const productsQuery = useQuery({
     queryKey: ["cart-products"],
     queryFn: () => getProducts(),
@@ -148,9 +145,13 @@ export default function CartPage() {
                         type="button"
                         variant="outline"
                         size="icon-sm"
-                        onClick={() =>
-                          updateQuantity(item.productId, item.size, item.quantity - 1)
-                        }
+                        onClick={() => {
+                          void updateQuantity(
+                            item.productId,
+                            item.size,
+                            item.quantity - 1,
+                          );
+                        }}
                         aria-label={`Decrease quantity for ${item.product.name}`}
                       >
                         <Minus className="h-3.5 w-3.5" />
@@ -160,9 +161,13 @@ export default function CartPage() {
                         type="button"
                         variant="outline"
                         size="icon-sm"
-                        onClick={() =>
-                          updateQuantity(item.productId, item.size, item.quantity + 1)
-                        }
+                        onClick={() => {
+                          void updateQuantity(
+                            item.productId,
+                            item.size,
+                            item.quantity + 1,
+                          );
+                        }}
                         aria-label={`Increase quantity for ${item.product.name}`}
                       >
                         <Plus className="h-3.5 w-3.5" />
@@ -171,7 +176,9 @@ export default function CartPage() {
                         type="button"
                         variant="ghost"
                         size="icon-sm"
-                        onClick={() => removeFromCart(item.productId, item.size)}
+                        onClick={() => {
+                          void removeFromCart(item.productId, item.size);
+                        }}
                         aria-label={`Remove ${item.product.name} from cart`}
                       >
                         <Trash2 className="h-3.5 w-3.5" />

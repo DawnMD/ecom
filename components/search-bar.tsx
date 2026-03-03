@@ -12,10 +12,10 @@ import {
 } from "@/components/header/header-locale-theme-controls";
 import { HeaderSearchInput } from "@/components/header/header-search-input";
 import { HeaderWishlistMenu } from "@/components/header/header-wishlist-menu";
+import { useCart } from "@/hooks/use-cart";
 import { useSearch } from "@/hooks/use-search";
 import { useWishlistProducts } from "@/hooks/use-wishlist-products";
 import { useAuthStore } from "@/stores/use-auth-store";
-import { useCartItemCount, useCartStore } from "@/stores/use-cart-store";
 import { useWishlistStore } from "@/stores/use-wishlist-store";
 import Link from "next/link";
 
@@ -26,8 +26,7 @@ export const SearchBar = () => {
   const authUser = useAuthStore((state) => state.user);
   const logout = useAuthStore((state) => state.logout);
   const hasAuthHydrated = useAuthStore((state) => state.hasHydrated);
-  const cartItemCount = useCartItemCount();
-  const hasCartHydrated = useCartStore((state) => state.hasHydrated);
+  const { itemCount: cartItemCount, hasCartHydrated } = useCart();
   const wishlistProductIds = useWishlistStore(
     (state) => state.wishlistProductIds,
   );
@@ -38,6 +37,7 @@ export const SearchBar = () => {
   const pathname = usePathname();
   const router = useRouter();
   const [draftSearchQuery, setDraftSearchQuery] = useState(searchQuery);
+  const isCartRoute = pathname === "/cart" || pathname.startsWith("/cart/");
   const wishlistCount = wishlistProductIds.length;
   const {
     wishlistProducts,
@@ -110,13 +110,15 @@ export const SearchBar = () => {
         </div>
 
         <div className="flex w-full items-center gap-3 md:contents">
-          <HeaderSearchInput
-            value={draftSearchQuery}
-            onValueChange={handleDraftSearchChange}
-            onSubmit={handleSearchSubmit}
-          />
+          {!isCartRoute ? (
+            <HeaderSearchInput
+              value={draftSearchQuery}
+              onValueChange={handleDraftSearchChange}
+              onSubmit={handleSearchSubmit}
+            />
+          ) : null}
 
-          <div className="flex items-center gap-2 md:gap-4">
+          <div className="ml-auto flex items-center gap-2 md:gap-4">
             <HeaderCartButton
               hasCartHydrated={hasCartHydrated}
               cartItemCount={cartItemCount}

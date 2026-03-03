@@ -17,9 +17,9 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { useCart } from "@/hooks/use-cart";
 import { useCartIntentQueryState } from "@/hooks/use-product-query-states";
 import { useAuthStore } from "@/stores/use-auth-store";
-import { useCartStore } from "@/stores/use-cart-store";
 import { useWishlistStore } from "@/stores/use-wishlist-store";
 import { cn } from "@/lib/utils";
 import { getProductById } from "@/lib/services/product-service";
@@ -75,7 +75,7 @@ export function ProductCommerceDetails({
   const [selectedSize, setSelectedSize] = useState<string | null>(null);
   const router = useRouter();
   const pathname = usePathname();
-  const addToCart = useCartStore((state) => state.addToCart);
+  const { addToCart, isCartSyncing } = useCart();
   const authUser = useAuthStore((state) => state.user);
   const hasAuthHydrated = useAuthStore((state) => state.hasHydrated);
   const wishlistProductIds = useWishlistStore((state) => state.wishlistProductIds);
@@ -113,7 +113,9 @@ export function ProductCommerceDetails({
 
     handledIntentKey.current = intentKey;
     const quantityToAdd = Math.max(1, intentQuantity ?? 1);
-    addToCart(intentProductId, intentSize, quantityToAdd);
+    void addToCart(intentProductId, intentSize, quantityToAdd).catch(() => {
+      setAddToCartMessage("Cart sync failed. Please try again.");
+    });
 
     void setCartIntent({
       intent: null,
@@ -122,8 +124,8 @@ export function ProductCommerceDetails({
       cartQuantity: null,
     });
   }, [
-    addToCart,
     authUser,
+    addToCart,
     setCartIntent,
     hasAuthHydrated,
     intent,
@@ -202,10 +204,15 @@ export function ProductCommerceDetails({
       return;
     }
 
-    addToCart(productId, selectedSizeValue, quantityToAdd);
-    setAddToCartMessage(
-      `Added ${quantityToAdd} item${quantityToAdd > 1 ? "s" : ""} (size ${selectedSizeValue}) to cart.`,
-    );
+    void addToCart(productId, selectedSizeValue, quantityToAdd)
+      .then(() => {
+        setAddToCartMessage(
+          `Added ${quantityToAdd} item${quantityToAdd > 1 ? "s" : ""} (size ${selectedSizeValue}) to cart.`,
+        );
+      })
+      .catch(() => {
+        setAddToCartMessage("Cart sync failed. Your cart was restored.");
+      });
   };
 
   const handleLoginRedirect = () => {
@@ -344,8 +351,14 @@ export function ProductCommerceDetails({
           </Card>
         </div>
 
-        <Button type="button" size="lg" className="w-full rounded-2xl" onClick={handleAddToCart} disabled={!inStock}>
-          Add to cart
+        <Button
+          type="button"
+          size="lg"
+          className="w-full rounded-2xl"
+          onClick={handleAddToCart}
+          disabled={!inStock || isCartSyncing}
+        >
+          {isCartSyncing ? "Adding..." : "Add to cart"}
         </Button>
 
         {addToCartMessage ? (
