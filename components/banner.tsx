@@ -1,5 +1,3 @@
-import { Button } from "@/components/ui/button";
-import { ChevronDownIcon } from "lucide-react";
 import Image from "next/image";
 
 export const Banner = () => {
@@ -21,15 +19,6 @@ export const Banner = () => {
           <br />
           <span className="ml-5 lg:ml-8">is More</span>
         </h1>
-
-        <Button
-          variant={"outline"}
-          size={"lg"}
-          className="hidden items-center justify-center rounded-full lg:flex"
-        >
-          <ChevronDownIcon size={16} />
-          <span className="sr-only">Scroll down</span>
-        </Button>
       </div>
 
       <div className="absolute right-10 top-1/2 text-base leading-tight font-light text-white/90 lg:hidden">
