@@ -41,5 +41,6 @@ export const useProducts = () => {
     isPending: query.isPending,
     isError: query.isError,
     error: query.error,
+    refetch: query.refetch,
   };
 };
