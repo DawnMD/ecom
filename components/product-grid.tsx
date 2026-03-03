@@ -2,6 +2,7 @@
 
 import { Heart } from "lucide-react";
 import Image from "next/image";
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useProducts } from "@/hooks/use-products";
@@ -22,15 +23,23 @@ const ProductCard = ({ product, isListView }: { product: Product; isListView: bo
             : "relative overflow-hidden rounded-xl bg-muted"
         }
       >
-        <div className="relative aspect-4/5">
-          <Image
-            src={product.images[0]}
-            alt={product.name}
-            fill
-            sizes={isListView ? "(max-width: 640px) 144px, 176px" : "(max-width: 1024px) 50vw, 33vw"}
-            className="object-cover"
-          />
-        </div>
+        <Link
+          href={`/products/${product.id}`}
+          aria-label={`View details for ${product.name}`}
+          className="block"
+        >
+          <div className="relative aspect-4/5">
+            <Image
+              src={product.images[0]}
+              alt={product.name}
+              fill
+              sizes={
+                isListView ? "(max-width: 640px) 144px, 176px" : "(max-width: 1024px) 50vw, 33vw"
+              }
+              className="object-cover transition-transform duration-500 hover:scale-[1.03]"
+            />
+          </div>
+        </Link>
         {product.isNew ? (
           <span className="absolute left-2 top-2 rounded-md bg-cyan-400 px-2 py-1 text-[10px] leading-none font-semibold text-white">
             New Arrival
@@ -41,7 +50,9 @@ const ProductCard = ({ product, isListView }: { product: Product; isListView: bo
       <div className="relative mt-2 flex-1 pr-8">
         <p className="text-sm text-muted-foreground">{product.brand}</p>
         <h3 className="mt-0.5 text-[1.65rem] leading-[1.15] font-semibold tracking-tight sm:text-3xl">
-          {product.name}
+          <Link href={`/products/${product.id}`} className="transition-colors hover:text-blue-600">
+            {product.name}
+          </Link>
         </h3>
         <div className="mt-1 flex items-center justify-between gap-3">
           <p className="text-[1.65rem] leading-none font-semibold text-blue-500 sm:text-3xl">
