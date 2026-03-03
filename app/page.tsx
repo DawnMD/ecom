@@ -4,6 +4,17 @@ import { ProductFilter } from "@/components/product-filter";
 import { ProductGrid } from "@/components/product-grid";
 import { ProductResultsCount } from "@/components/product-results-count";
 import { ViewModeToggle } from "@/components/view-mode-toggle";
+import { Button } from "@/components/ui/button";
+import {
+  Drawer,
+  DrawerClose,
+  DrawerContent,
+  DrawerDescription,
+  DrawerFooter,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerTrigger,
+} from "@/components/ui/drawer";
 import { Separator } from "@/components/ui/separator";
 
 export default function Page() {
@@ -17,9 +28,40 @@ export default function Page() {
             <ProductFilter />
           </div>
           <div className="lg:col-span-10 flex flex-col gap-4">
-            <div className="flex items-center justify-between gap-3">
-              <ViewModeToggle />
-              <PopularitySortDropdown />
+            <div className="flex flex-col gap-2">
+              <div className="flex items-center justify-between gap-3">
+                <ViewModeToggle />
+                <PopularitySortDropdown />
+              </div>
+              <Drawer direction="bottom">
+                <DrawerTrigger asChild>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="w-full lg:hidden"
+                  >
+                    Filters
+                  </Button>
+                </DrawerTrigger>
+                <DrawerContent>
+                  <DrawerHeader>
+                    <DrawerTitle>Filters</DrawerTitle>
+                    <DrawerDescription>
+                      Refine your product search.
+                    </DrawerDescription>
+                  </DrawerHeader>
+                  <div className="min-h-0 flex-1 overflow-y-auto p-3">
+                    <ProductFilter />
+                  </div>
+                  <DrawerFooter className="border-t bg-background p-3">
+                    <DrawerClose asChild>
+                      <Button type="button" className="w-full">
+                        Done
+                      </Button>
+                    </DrawerClose>
+                  </DrawerFooter>
+                </DrawerContent>
+              </Drawer>
             </div>
             <Separator />
             <ProductGrid />
