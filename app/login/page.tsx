@@ -4,7 +4,7 @@ import { useEffect, useMemo } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { useRouter } from "next/navigation";
-import { parseAsString, useQueryStates } from "nuqs";
+import { parseAsInteger, parseAsString, useQueryStates } from "nuqs";
 import { z } from "zod";
 import {
   Card,
@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   Field,
   FieldError,
@@ -40,6 +41,7 @@ export default function LoginPage() {
     intent: parseAsString,
     cartProductId: parseAsString,
     cartSize: parseAsString,
+    cartQuantity: parseAsInteger,
   });
   const login = useAuthStore((state) => state.login);
   const authUser = useAuthStore((state) => state.user);
@@ -66,6 +68,9 @@ export default function LoginPage() {
     if (loginQuery.cartSize) {
       redirectUrl.searchParams.set("cartSize", loginQuery.cartSize);
     }
+    if (loginQuery.cartQuantity != null) {
+      redirectUrl.searchParams.set("cartQuantity", String(loginQuery.cartQuantity));
+    }
 
     const queryString = redirectUrl.searchParams.toString();
     return queryString
@@ -73,6 +78,7 @@ export default function LoginPage() {
       : redirectUrl.pathname;
   }, [
     loginQuery.cartProductId,
+    loginQuery.cartQuantity,
     loginQuery.cartSize,
     loginQuery.intent,
     nextPath,
@@ -124,6 +130,24 @@ export default function LoginPage() {
       router.replace(redirectTargetPath);
     }
   }, [authUser, hasAuthHydrated, redirectTargetPath, router]);
+
+  if (!hasAuthHydrated) {
+    return (
+      <main className="mx-auto flex min-h-[calc(100vh-12rem)] w-full max-w-md items-center justify-center px-4 py-8">
+        <Card className="w-full">
+          <CardHeader>
+            <Skeleton className="h-7 w-40" />
+            <Skeleton className="mt-2 h-4 w-56" />
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <Skeleton className="h-10 w-full" />
+            <Skeleton className="h-10 w-full" />
+            <Skeleton className="h-11 w-full" />
+          </CardContent>
+        </Card>
+      </main>
+    );
+  }
 
   if (hasAuthHydrated && authUser) {
     return null;
