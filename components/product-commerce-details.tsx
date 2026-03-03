@@ -4,6 +4,8 @@ import { useQuery } from "@tanstack/react-query";
 import { Star } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useProductFiltersQueryState } from "@/hooks/use-product-query-states";
+import { cn } from "@/lib/utils";
 import { getProductById } from "@/lib/services/product-service";
 
 const colorMap: Record<string, string> = {
@@ -49,6 +51,7 @@ export function ProductCommerceDetails({
   fallbackInStock,
   fallbackStockQuantity,
 }: ProductCommerceDetailsProps) {
+  const [filters, setFilters] = useProductFiltersQueryState();
   const query = useQuery({
     queryKey: ["product-commerce", productId],
     queryFn: () => getProductById(productId),
@@ -97,6 +100,8 @@ export function ProductCommerceDetails({
   const originalPrice = product?.originalPrice ?? fallbackOriginalPrice;
   const colors = product?.colors ?? fallbackColors;
   const sizes = product?.sizes ?? fallbackSizes;
+  const selectedColor = filters.color?.find((value) => colors.includes(value));
+  const selectedSize = filters.size?.find((value) => sizes.includes(value));
   const inStock = product?.inStock ?? fallbackInStock;
   const stockQuantity = product?.stockQuantity ?? fallbackStockQuantity ?? 0;
   const stockLabel = inStock && stockQuantity > 0 ? `${stockQuantity} left in stock` : "Out of stock";
@@ -123,17 +128,21 @@ export function ProductCommerceDetails({
           <p className="mb-2 text-xs uppercase tracking-[0.2em]">Colorway</p>
           <div className="flex flex-wrap gap-2">
             {colors.map((color) => (
-              <Card
-                key={color}
-                size="sm"
-                className="inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-xs"
-              >
-                <span
-                  className="h-3 w-3 rounded-full"
-                  style={{ backgroundColor: colorMap[color] ?? "#a1a1aa" }}
-                />
-                {color}
-              </Card>
+              <button key={color} type="button" onClick={() => setFilters({ color: [color] })}>
+                <Card
+                  size="sm"
+                  className={cn(
+                    "inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-xs transition-colors",
+                    selectedColor === color ? "bg-primary text-primary-foreground" : "hover:bg-muted/70",
+                  )}
+                >
+                  <span
+                    className="h-3 w-3 rounded-full"
+                    style={{ backgroundColor: colorMap[color] ?? "#a1a1aa" }}
+                  />
+                  {color}
+                </Card>
+              </button>
             ))}
           </div>
         </div>
@@ -142,9 +151,17 @@ export function ProductCommerceDetails({
           <p className="mb-2 text-xs uppercase tracking-[0.2em]">Available Sizes</p>
           <div className="flex flex-wrap gap-2">
             {sizes.map((size) => (
-              <Card key={size} size="sm" className="rounded-xl px-3 py-1.5 text-sm font-medium">
-                {size}
-              </Card>
+              <button key={size} type="button" onClick={() => setFilters({ size: [size] })}>
+                <Card
+                  size="sm"
+                  className={cn(
+                    "rounded-xl px-3 py-1.5 text-sm font-medium transition-colors",
+                    selectedSize === size ? "bg-primary text-primary-foreground" : "hover:bg-muted/70",
+                  )}
+                >
+                  {size}
+                </Card>
+              </button>
             ))}
           </div>
         </div>
