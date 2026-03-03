@@ -56,8 +56,8 @@ export const ProductFilter = () => {
   const loadingPriceMin = 0;
   const loadingPriceMax = 1;
   const selectedCategoryLabel =
-    categoryOptions.find((option) => option.value === filters.category)?.label ??
-    "All categories";
+    categoryOptions.find((option) => option.value === filters.category)
+      ?.label ?? "All categories";
 
   return (
     <div className="bg-accent p-1.5 rounded-md flex flex-col gap-2">
@@ -140,9 +140,8 @@ export const ProductFilter = () => {
             </div>
           </Card>
           <Card className="p-2 space-y-3">
-            {isLoadingFilters ? (
-              <Skeleton className="h-4 w-28" />
-            ) : null}
+            <p className="text-sm font-medium">Price range</p>
+            {isLoadingFilters ? <Skeleton className="h-4 w-28" /> : null}
             <Slider
               value={
                 isLoadingFilters
@@ -155,6 +154,7 @@ export const ProductFilter = () => {
               step={1}
               disabled={isLoadingFilters}
             />
+
             <FieldGroup className="grid max-w-sm grid-cols-2">
               <Field>
                 <FieldLabel htmlFor="min-price">Min. Price</FieldLabel>
@@ -200,7 +200,11 @@ export const ProductFilter = () => {
                   onValueChange={setSizeFilter}
                 >
                   {sizeOptions.map((size) => (
-                    <ToggleGroupItem key={size} value={size} aria-label={`Toggle ${size}`}>
+                    <ToggleGroupItem
+                      key={size}
+                      value={size}
+                      aria-label={`Toggle ${size}`}
+                    >
                       {size}
                     </ToggleGroupItem>
                   ))}
