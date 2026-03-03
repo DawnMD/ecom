@@ -104,6 +104,7 @@ export async function getBrands(): Promise<string[]> {
 
 export type ProductFilterOptions = {
   brands: string[];
+  categories: string[];
   sizes: string[];
   colors: string[];
   priceMin: number;
@@ -118,6 +119,7 @@ export async function getFilterOptions(): Promise<ProductFilterOptions> {
   maybeFail();
 
   const brands = new Set<string>();
+  const categories = new Set<string>();
   const sizes = new Set<string>();
   const colors = new Set<string>();
   let priceMin = Number.POSITIVE_INFINITY;
@@ -125,6 +127,7 @@ export async function getFilterOptions(): Promise<ProductFilterOptions> {
 
   for (const product of MOCK_PRODUCTS) {
     brands.add(product.brand);
+    categories.add(product.category);
     for (const size of product.sizes) sizes.add(size);
     for (const color of product.colors ?? []) colors.add(color);
     priceMin = Math.min(priceMin, product.price);
@@ -133,6 +136,7 @@ export async function getFilterOptions(): Promise<ProductFilterOptions> {
 
   return {
     brands: Array.from(brands).sort(),
+    categories: Array.from(categories).sort(),
     sizes: Array.from(sizes).sort(),
     colors: Array.from(colors).sort(),
     priceMin: Number.isFinite(priceMin) ? priceMin : 0,
