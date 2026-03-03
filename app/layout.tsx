@@ -1,5 +1,4 @@
-import { SearchBar } from "@/components/features/search/search-bar";
-import { ShippingBar } from "@/components/layout/shipping-bar";
+import { AppChrome } from "@/components/layout/app-chrome";
 import { QueryProvider } from "@/components/providers/query-provider";
 import { ThemeProvider } from "@/components/providers/theme-provider";
 import type { Metadata } from "next";
@@ -43,11 +42,7 @@ export default function RootLayout({
           <QueryProvider>
             <Suspense fallback={null}>
               <NuqsAdapter>
-                <ShippingBar />
-                <header className="sticky top-0 z-50 border-b bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/80">
-                  <SearchBar />
-                </header>
-                {children}
+                <AppChrome>{children}</AppChrome>
               </NuqsAdapter>
             </Suspense>
           </QueryProvider>
