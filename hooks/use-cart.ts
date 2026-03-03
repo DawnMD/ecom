@@ -1,11 +1,18 @@
 "use client";
 
 import { useMutation } from "@tanstack/react-query";
+import { useRef } from "react";
 import type { CartItem } from "@/stores/use-cart-store";
-import { useCartItemCount, useCartItems, useCartStore } from "@/stores/use-cart-store";
+import {
+  getActiveCartKey,
+  useCartItemCount,
+  useCartItems,
+  useCartStore,
+} from "@/stores/use-cart-store";
 import { syncCartOperation, type CartSyncOperation } from "@/lib/services/cart-service";
 
 type OptimisticCartContext = {
+  cartKey: string;
   previousItems: CartItem[];
 };
 
@@ -15,20 +22,22 @@ export const useCart = () => {
   const rawRemoveFromCart = useCartStore((state) => state.removeFromCart);
   const rawUpdateQuantity = useCartStore((state) => state.updateQuantity);
   const rawClearCart = useCartStore((state) => state.clearCart);
+  const replaceItemsForCartKey = useCartStore((state) => state.replaceItemsForCartKey);
   const items = useCartItems();
   const itemCount = useCartItemCount();
+  const operationQueueRef = useRef<Promise<unknown>>(Promise.resolve());
 
-  const restoreItems = (previousItems: CartItem[]) => {
-    rawClearCart();
-    for (const item of previousItems) {
-      rawAddToCart(item.productId, item.size, item.quantity);
-    }
+  const restoreItems = (cartKey: string, previousItems: CartItem[]) => {
+    replaceItemsForCartKey(cartKey, previousItems);
   };
 
   const mutation = useMutation({
     mutationFn: syncCartOperation,
     onMutate: async (payload: CartSyncOperation) => {
-      const previousItems = [...items];
+      const cartKey = getActiveCartKey();
+      const state = useCartStore.getState();
+      const previousItems =
+        cartKey === "guest" ? [...state.guestItems] : [...(state.cartsByUser[cartKey] ?? [])];
 
       switch (payload.type) {
         case "add":
@@ -47,19 +56,29 @@ export const useCart = () => {
           break;
       }
 
-      return { previousItems } satisfies OptimisticCartContext;
+      return { cartKey, previousItems } satisfies OptimisticCartContext;
     },
     onError: (_error, _payload, context) => {
-      restoreItems(context?.previousItems ?? []);
+      if (!context) {
+        return;
+      }
+
+      restoreItems(context.cartKey, context.previousItems);
     },
   });
+
+  const queueOperation = (operation: CartSyncOperation) => {
+    const queuedOperation = operationQueueRef.current.then(() => mutation.mutateAsync(operation));
+    operationQueueRef.current = queuedOperation.catch(() => undefined);
+    return queuedOperation;
+  };
 
   return {
     items,
     itemCount,
     hasCartHydrated,
     addToCart: async (productId: string, size: string, quantity = 1) => {
-      await mutation.mutateAsync({
+      await queueOperation({
         type: "add",
         productId,
         size,
@@ -67,14 +86,14 @@ export const useCart = () => {
       });
     },
     removeFromCart: async (productId: string, size: string) => {
-      await mutation.mutateAsync({
+      await queueOperation({
         type: "remove",
         productId,
         size,
       });
     },
     updateQuantity: async (productId: string, size: string, quantity: number) => {
-      await mutation.mutateAsync({
+      await queueOperation({
         type: "update",
         productId,
         size,
@@ -82,7 +101,7 @@ export const useCart = () => {
       });
     },
     clearCart: async () => {
-      await mutation.mutateAsync({
+      await queueOperation({
         type: "clear",
       });
     },

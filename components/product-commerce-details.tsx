@@ -23,6 +23,7 @@ import { useAuthStore } from "@/stores/use-auth-store";
 import { useWishlistStore } from "@/stores/use-wishlist-store";
 import { cn } from "@/lib/utils";
 import { getProductById } from "@/lib/services/product-service";
+import { getEffectiveStockQuantity, isProductPurchasable } from "@/lib/stock";
 
 const colorMap: Record<string, string> = {
   Black: "#111111",
@@ -148,10 +149,12 @@ export function ProductCommerceDetails({
   const sizes = product?.sizes ?? fallbackSizes;
   const inStock = product?.inStock ?? fallbackInStock;
   const stockQuantity = product?.stockQuantity ?? fallbackStockQuantity ?? 0;
+  const effectiveStockQuantity = getEffectiveStockQuantity(inStock, stockQuantity);
+  const isPurchasable = isProductPurchasable(inStock, stockQuantity);
   const selectedColorValue = selectedColor && colors.includes(selectedColor) ? selectedColor : null;
   const selectedSizeValue = selectedSize && sizes.includes(selectedSize) ? selectedSize : null;
-  const stockLabel = inStock && stockQuantity > 0 ? `${stockQuantity} left in stock` : "Out of stock";
-  const maxQuantity = inStock ? Math.max(1, stockQuantity) : 1;
+  const stockLabel = isPurchasable ? `${effectiveStockQuantity} left in stock` : "Out of stock";
+  const maxQuantity = isPurchasable ? Math.max(1, effectiveStockQuantity) : 1;
   const quantityToAdd = Math.min(selectedQuantity, maxQuantity);
 
   if (query.isPending) {
@@ -189,7 +192,7 @@ export function ProductCommerceDetails({
   }
 
   const handleAddToCart = () => {
-    if (!inStock) {
+    if (!isPurchasable) {
       setAddToCartMessage("This product is currently out of stock.");
       return;
     }
@@ -329,7 +332,7 @@ export function ProductCommerceDetails({
               variant="ghost"
               className="rounded-xl"
               onClick={() => setSelectedQuantity((current) => Math.max(1, current - 1))}
-              disabled={!inStock || selectedQuantity <= 1}
+              disabled={!isPurchasable || selectedQuantity <= 1}
               aria-label="Decrease add to cart quantity"
             >
               <Minus className="h-3.5 w-3.5" />
@@ -343,7 +346,7 @@ export function ProductCommerceDetails({
               variant="ghost"
               className="rounded-xl"
               onClick={() => setSelectedQuantity((current) => Math.min(maxQuantity, current + 1))}
-              disabled={!inStock || selectedQuantity >= maxQuantity}
+              disabled={!isPurchasable || selectedQuantity >= maxQuantity}
               aria-label="Increase add to cart quantity"
             >
               <Plus className="h-3.5 w-3.5" />
@@ -356,7 +359,7 @@ export function ProductCommerceDetails({
           size="lg"
           className="w-full rounded-2xl"
           onClick={handleAddToCart}
-          disabled={!inStock || isCartSyncing}
+          disabled={!isPurchasable || isCartSyncing}
         >
           {isCartSyncing ? "Adding..." : "Add to cart"}
         </Button>

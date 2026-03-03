@@ -13,12 +13,8 @@ import type { Product } from "@/types/product";
 export const dynamicParams = false;
 
 export async function generateStaticParams() {
-  try {
-    const { products } = await getProducts();
-    return products.map((product) => ({ id: product.id }));
-  } catch {
-    return [];
-  }
+  const { products } = await getProducts({ simulateFailure: false });
+  return products.map((product) => ({ id: product.id }));
 }
 
 export async function generateMetadata({

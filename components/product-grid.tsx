@@ -11,6 +11,7 @@ import { useCart } from "@/hooks/use-cart";
 import { useProducts } from "@/hooks/use-products";
 import { useViewMode } from "@/hooks/use-view-mode";
 import { useWishlistStore } from "@/stores/use-wishlist-store";
+import { getEffectiveStockQuantity, isLowStock, isProductPurchasable } from "@/lib/stock";
 import { cn } from "@/lib/utils";
 import type { Product } from "@/types/product";
 
@@ -25,13 +26,19 @@ const ProductCard = ({
   isListView: boolean;
   onAddToCart: (productId: string, size: string) => Promise<void>;
 }) => {
-  const hasLowStock = (product.stockQuantity ?? 0) > 0;
+  const hasLowStock = isLowStock(product.inStock, product.stockQuantity);
+  const effectiveStockQuantity = getEffectiveStockQuantity(
+    product.inStock,
+    product.stockQuantity,
+  );
   const wishlistProductIds = useWishlistStore((state) => state.wishlistProductIds);
   const toggleWishlist = useWishlistStore((state) => state.toggleWishlist);
   const hasHydrated = useWishlistStore((state) => state.hasHydrated);
   const isWishlisted = wishlistProductIds.includes(product.id);
   const defaultSize = product.sizes[0] ?? null;
-  const canAddToCart = Boolean(defaultSize) && product.inStock;
+  const canAddToCart =
+    Boolean(defaultSize) &&
+    isProductPurchasable(product.inStock, product.stockQuantity);
   const [addFeedback, setAddFeedback] = useState<string | null>(null);
   const feedbackTimerRef = useRef<number | null>(null);
 
@@ -48,7 +55,7 @@ const ProductCard = ({
       setAddFeedback("Size unavailable");
       return;
     }
-    if (!product.inStock) {
+    if (!isProductPurchasable(product.inStock, product.stockQuantity)) {
       setAddFeedback("Out of stock");
       return;
     }
@@ -112,7 +119,7 @@ const ProductCard = ({
             {formatPrice(product.price)}
           </p>
           {hasLowStock ? (
-            <p className="text-sm font-medium text-red-400">{product.stockQuantity} items left!</p>
+            <p className="text-sm font-medium text-red-400">{effectiveStockQuantity} items left!</p>
           ) : null}
         </div>
         <div className="mt-2 flex items-center gap-2">

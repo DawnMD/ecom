@@ -18,6 +18,7 @@ type CartState = {
   removeFromCart: (productId: string, size: string) => void;
   updateQuantity: (productId: string, size: string, quantity: number) => void;
   clearCart: () => void;
+  replaceItemsForCartKey: (cartKey: string, items: CartItem[]) => void;
   setHasHydrated: (value: boolean) => void;
 };
 
@@ -28,7 +29,7 @@ const EMPTY_CART_ITEMS: CartItem[] = [];
 
 const normalizeEmail = (email?: string | null) => email?.trim().toLowerCase() ?? null;
 
-const getActiveCartKey = () => normalizeEmail(useAuthStore.getState().user?.email) ?? "guest";
+export const getActiveCartKey = () => normalizeEmail(useAuthStore.getState().user?.email) ?? "guest";
 
 const getItemsForKey = (state: CartState, key: string) =>
   key === "guest" ? state.guestItems : (state.cartsByUser[key] ?? []);
@@ -113,6 +114,8 @@ export const useCartStore = create<CartState>()(
           const cartKey = getActiveCartKey();
           return setItemsForKey(state, cartKey, []);
         }),
+      replaceItemsForCartKey: (cartKey, items) =>
+        set((state) => setItemsForKey(state, cartKey, [...items])),
       setHasHydrated: (value) => set({ hasHydrated: value }),
     }),
     {

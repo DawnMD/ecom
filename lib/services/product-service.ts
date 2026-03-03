@@ -5,6 +5,7 @@ import type {
   SortOption,
 } from "@/types/product";
 import { MOCK_PRODUCTS } from "@/lib/data/mock-products";
+import { isProductPurchasable } from "@/lib/stock";
 
 const DEFAULT_DELAY_MS = 2000;
 const ERROR_RATE = 0.15; // ~15% of requests simulate failure
@@ -32,7 +33,7 @@ function matchesFilter(p: Product, filter: ProductFilter): boolean {
     const hasColor = filter.colors.some((c) => p.colors!.includes(c));
     if (!hasColor) return false;
   }
-  if (filter.inStock === true && !p.inStock) return false;
+  if (filter.inStock === true && !isProductPurchasable(p.inStock, p.stockQuantity)) return false;
   return true;
 }
 
@@ -62,9 +63,12 @@ export async function getProducts(options?: {
   sort?: SortOption;
   limit?: number;
   offset?: number;
+  simulateFailure?: boolean;
 }): Promise<ProductListResult> {
   await delay();
-  maybeFail();
+  if (options?.simulateFailure ?? true) {
+    maybeFail();
+  }
 
   let list = MOCK_PRODUCTS;
   const filter = options?.filter;
