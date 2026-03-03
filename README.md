@@ -36,6 +36,20 @@ pnpm start
 pnpm lint
 ```
 
+### Run Integration Test Flow
+
+```bash
+pnpm test:integration
+```
+
+Current automated coverage is a single end-to-end-like UI integration flow in
+`tests/integration/shopping-flow.integration.test.tsx` that validates:
+
+- updating filters from desktop and mobile filter UIs
+- searching from desktop and mobile search inputs
+- adding a product to cart
+- adding a product to wishlist
+
 ## Tech Stack
 
 - Next.js App Router
@@ -175,10 +189,9 @@ pnpm lint
   - pagination for predictable performance and easier QA, or
   - infinite scroll with an intersection observer hook and URL cursor state
 - Add route-level protection middleware strategy for broader auth coverage
-- Add automated tests (unit + integration + e2e) for:
-  - filter/query-state synchronization
-  - auth redirect/intent resume flow
-  - optimistic cart rollback
+- Expand automated test coverage beyond the existing shopping flow integration test:
+  - add focused integration coverage for auth/cart/wishlist edge cases
+  - add browser-level e2e coverage for route transitions and mobile drawer behavior
 - Add stronger accessibility passes (keyboard focus flows, SR announcements for cart updates)
 - Reduce duplicated hydration logic across persisted stores via shared utility patterns
 - Introduce telemetry hooks to measure failed requests and retry outcomes
@@ -195,7 +208,7 @@ pnpm lint
 
 ## Known Gaps
 
-- No automated tests yet
+- Automated tests currently include only one primary integration flow
 - No pagination/infinite scroll yet
 - Route protection is implemented at flow/page level rather than centralized middleware
 - Wishlist is not user-scoped yet (it is persisted locally and shared across sessions on the same device)
