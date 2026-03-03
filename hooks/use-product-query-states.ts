@@ -33,6 +33,13 @@ const FILTER_QUERY_PARSERS = {
   color: parseAsNativeArrayOf(parseAsString),
 };
 
+const CART_INTENT_QUERY_PARSERS = {
+  intent: parseAsString,
+  cartProductId: parseAsString,
+  cartSize: parseAsString,
+  cartQuantity: parseAsInteger,
+};
+
 export type ViewMode = (typeof VIEW_MODE_OPTIONS)[number];
 
 export const useSearchQueryState = () =>
@@ -55,3 +62,6 @@ export const useViewModeQueryState = () =>
 
 export const useProductFiltersQueryState = () =>
   useQueryStates(FILTER_QUERY_PARSERS, FILTER_QUERY_OPTIONS);
+
+export const useCartIntentQueryState = () =>
+  useQueryStates(CART_INTENT_QUERY_PARSERS, FILTER_QUERY_OPTIONS);
