@@ -17,7 +17,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { useCartIntentQueryState, useProductFiltersQueryState } from "@/hooks/use-product-query-states";
+import { useCartIntentQueryState } from "@/hooks/use-product-query-states";
 import { useAuthStore } from "@/stores/use-auth-store";
 import { useCartStore } from "@/stores/use-cart-store";
 import { useWishlistStore } from "@/stores/use-wishlist-store";
@@ -67,11 +67,12 @@ export function ProductCommerceDetails({
   fallbackInStock,
   fallbackStockQuantity,
 }: ProductCommerceDetailsProps) {
-  const [filters, setFilters] = useProductFiltersQueryState();
   const [cartIntent, setCartIntent] = useCartIntentQueryState();
   const [isAuthPromptOpen, setIsAuthPromptOpen] = useState(false);
   const [addToCartMessage, setAddToCartMessage] = useState<string | null>(null);
   const [selectedQuantity, setSelectedQuantity] = useState(1);
+  const [selectedColor, setSelectedColor] = useState<string | null>(null);
+  const [selectedSize, setSelectedSize] = useState<string | null>(null);
   const router = useRouter();
   const pathname = usePathname();
   const addToCart = useCartStore((state) => state.addToCart);
@@ -135,6 +136,22 @@ export function ProductCommerceDetails({
     router
   ]);
 
+  const product = query.data;
+  const isWishlisted = wishlistProductIds.includes(productId);
+  const rating = product?.rating ?? fallbackRating;
+  const reviewCount = product?.reviewCount ?? fallbackReviewCount;
+  const price = product?.price ?? fallbackPrice;
+  const originalPrice = product?.originalPrice ?? fallbackOriginalPrice;
+  const colors = product?.colors ?? fallbackColors;
+  const sizes = product?.sizes ?? fallbackSizes;
+  const inStock = product?.inStock ?? fallbackInStock;
+  const stockQuantity = product?.stockQuantity ?? fallbackStockQuantity ?? 0;
+  const selectedColorValue = selectedColor && colors.includes(selectedColor) ? selectedColor : null;
+  const selectedSizeValue = selectedSize && sizes.includes(selectedSize) ? selectedSize : null;
+  const stockLabel = inStock && stockQuantity > 0 ? `${stockQuantity} left in stock` : "Out of stock";
+  const maxQuantity = inStock ? Math.max(1, stockQuantity) : 1;
+  const quantityToAdd = Math.min(selectedQuantity, maxQuantity);
+
   if (query.isPending) {
     return (
       <>
@@ -169,29 +186,13 @@ export function ProductCommerceDetails({
     );
   }
 
-  const product = query.data;
-  const isWishlisted = wishlistProductIds.includes(productId);
-  const rating = product?.rating ?? fallbackRating;
-  const reviewCount = product?.reviewCount ?? fallbackReviewCount;
-  const price = product?.price ?? fallbackPrice;
-  const originalPrice = product?.originalPrice ?? fallbackOriginalPrice;
-  const colors = product?.colors ?? fallbackColors;
-  const sizes = product?.sizes ?? fallbackSizes;
-  const selectedColor = filters.color?.find((value) => colors.includes(value));
-  const selectedSize = filters.size?.find((value) => sizes.includes(value));
-  const inStock = product?.inStock ?? fallbackInStock;
-  const stockQuantity = product?.stockQuantity ?? fallbackStockQuantity ?? 0;
-  const stockLabel = inStock && stockQuantity > 0 ? `${stockQuantity} left in stock` : "Out of stock";
-  const maxQuantity = inStock ? Math.max(1, stockQuantity) : 1;
-  const quantityToAdd = Math.min(selectedQuantity, maxQuantity);
-
   const handleAddToCart = () => {
     if (!inStock) {
       setAddToCartMessage("This product is currently out of stock.");
       return;
     }
 
-    if (!selectedSize) {
+    if (!selectedSizeValue) {
       setAddToCartMessage("Please select a size before adding to cart.");
       return;
     }
@@ -201,14 +202,14 @@ export function ProductCommerceDetails({
       return;
     }
 
-    addToCart(productId, selectedSize, quantityToAdd);
+    addToCart(productId, selectedSizeValue, quantityToAdd);
     setAddToCartMessage(
-      `Added ${quantityToAdd} item${quantityToAdd > 1 ? "s" : ""} (size ${selectedSize}) to cart.`,
+      `Added ${quantityToAdd} item${quantityToAdd > 1 ? "s" : ""} (size ${selectedSizeValue}) to cart.`,
     );
   };
 
   const handleLoginRedirect = () => {
-    if (!selectedSize) {
+    if (!selectedSizeValue) {
       setAddToCartMessage("Please select a size before continuing.");
       return;
     }
@@ -216,7 +217,7 @@ export function ProductCommerceDetails({
     const nextParams = new URLSearchParams();
     nextParams.set("intent", "add-to-cart");
     nextParams.set("cartProductId", productId);
-    nextParams.set("cartSize", selectedSize);
+    nextParams.set("cartSize", selectedSizeValue);
     nextParams.set("cartQuantity", String(quantityToAdd));
     const nextPath = `${pathname}?${nextParams.toString()}`;
     router.push(`/login?next=${encodeURIComponent(nextPath)}`);
@@ -264,12 +265,12 @@ export function ProductCommerceDetails({
           <p className="mb-2 text-xs uppercase tracking-[0.2em]">Colorway</p>
           <div className="flex flex-wrap gap-2">
             {colors.map((color) => (
-              <button key={color} type="button" onClick={() => setFilters({ color: [color] })}>
+              <button key={color} type="button" onClick={() => setSelectedColor(color)}>
                 <Card
                   size="sm"
                   className={cn(
                     "inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-xs transition-colors",
-                    selectedColor === color ? "bg-primary text-primary-foreground" : "hover:bg-muted/70",
+                    selectedColorValue === color ? "bg-primary text-primary-foreground" : "hover:bg-muted/70",
                   )}
                 >
                   <span
@@ -287,12 +288,12 @@ export function ProductCommerceDetails({
           <p className="mb-2 text-xs uppercase tracking-[0.2em]">Available Sizes</p>
           <div className="flex flex-wrap gap-2">
             {sizes.map((size) => (
-              <button key={size} type="button" onClick={() => setFilters({ size: [size] })}>
+              <button key={size} type="button" onClick={() => setSelectedSize(size)}>
                 <Card
                   size="sm"
                   className={cn(
                     "rounded-xl px-3 py-1.5 text-sm font-medium transition-colors",
-                    selectedSize === size ? "bg-primary text-primary-foreground" : "hover:bg-muted/70",
+                    selectedSizeValue === size ? "bg-primary text-primary-foreground" : "hover:bg-muted/70",
                   )}
                 >
                   {size}
