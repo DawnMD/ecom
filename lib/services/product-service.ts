@@ -83,11 +83,10 @@ export async function getProducts(options?: {
 
 /**
  * Fetch a single product by id.
- * Simulates network delay and occasional errors.
+ * Simulates network delay.
  */
 export async function getProductById(id: string): Promise<Product | null> {
   await delay();
-  maybeFail();
 
   return MOCK_PRODUCTS.find((p) => p.id === id) ?? null;
 }
