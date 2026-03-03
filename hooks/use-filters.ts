@@ -21,7 +21,13 @@ const FALLBACK_FILTER_OPTIONS: ProductFilterOptions = {
 export const useFilters = () => {
   const [filters, setFilters] = useProductFiltersQueryState();
 
-  const { data: filterOptions, isPending: isLoadingFilters } = useQuery({
+  const {
+    data: filterOptions,
+    isPending: isLoadingFilters,
+    isError: isFilterOptionsError,
+    refetch: refetchFilterOptions,
+    error: filterOptionsError,
+  } = useQuery({
     queryKey: ["filters", "options"],
     queryFn: getFilterOptions,
     retry: 1,
@@ -85,6 +91,12 @@ export const useFilters = () => {
     sizeOptions: resolvedFilterOptions.sizes,
     colorOptions: resolvedFilterOptions.colors,
     isLoadingFilters,
+    isFilterOptionsError,
+    refetchFilterOptions,
+    filterOptionsErrorMessage:
+      filterOptionsError instanceof Error
+        ? filterOptionsError.message
+        : "Could not load filters right now.",
     selectedMinPrice,
     selectedMaxPrice,
     priceMin,
