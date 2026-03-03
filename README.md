@@ -94,6 +94,20 @@ pnpm lint
 - Easier to scale richer product content and recommendation modules
 - Tradeoff: users leave listing context compared to in-place quick-view modal
 
+### Why static generation for product pages (instead of SSR prefetching)
+
+- Product detail routes use prebuilt params and static generation because the mock catalog is stable and known at build time
+- This keeps product pages fast on first load and reduces per-request server work
+- It also simplifies deployment/runtime behavior for an assessment project without a live backend dependency
+- Tradeoff: static pages can become stale between builds, so this approach is best when catalog updates are infrequent or controlled
+
+### Why client-side product fetching on listing (instead of SSR)
+
+- Listing behavior is highly interactive (URL-driven filters, debounced search, view mode toggles, sort, optimistic cart actions), which naturally fits client state + React Query
+- Keeping product queries on the client avoids repeated server renders for each small filter/search interaction
+- React Query provides loading/error/retry/caching patterns that pair well with simulated async failures in this project
+- Tradeoff: weaker first-paint SEO/content completeness compared to SSR prefetch, and initial data depends on client fetch timing
+
 ### Why URL-synced state (`nuqs`)
 
 - Filters/search/view/sort survive refresh and are shareable
@@ -126,6 +140,14 @@ pnpm lint
 - Immediate UI feedback on add/remove/update actions
 - Simulated backend sync failures demonstrate rollback strategy
 - Tradeoff: must keep rollback logic correct to avoid UI/data drift
+
+### Recent reliability improvements
+
+- Centralized stock semantics in `lib/stock.ts` (`isProductPurchasable`, low-stock detection, effective quantity)
+- Unified stock logic across listing, detail, and filter matching to avoid inconsistent "in stock" behavior
+- Serialized cart mutations in `useCart` to prevent race conditions during rapid add/update/remove actions
+- Improved optimistic rollback by restoring the correct cart scope key (guest vs authenticated user cart)
+- Disabled simulated failures during `generateStaticParams` so static route generation is deterministic in builds
 
 ### Data Layer
 
@@ -176,3 +198,4 @@ pnpm lint
 - No automated tests yet
 - No pagination/infinite scroll yet
 - Route protection is implemented at flow/page level rather than centralized middleware
+- Wishlist is not user-scoped yet (it is persisted locally and shared across sessions on the same device)
