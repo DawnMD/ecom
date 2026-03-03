@@ -27,12 +27,7 @@ export async function generateMetadata({
   params: Promise<{ id: string }>;
 }): Promise<Metadata> {
   const { id } = await params;
-  let product = null;
-  try {
-    product = await getProductById(id);
-  } catch {
-    return { title: "Product Not Found" };
-  }
+  const product = await getProductById(id);
 
   if (!product) {
     return { title: "Product Not Found" };
@@ -50,12 +45,7 @@ export default async function ProductDetailPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  let product = null;
-  try {
-    product = await getProductById(id);
-  } catch {
-    notFound();
-  }
+  const product = await getProductById(id);
 
   if (!product) {
     notFound();
@@ -66,7 +56,9 @@ export default async function ProductDetailPage({
     const { products } = await getProducts({
       filter: { brand: [product.brand] },
     });
-    relatedProducts = products.filter((entry) => entry.id !== product.id).slice(0, 4);
+    relatedProducts = products
+      .filter((entry) => entry.id !== product.id)
+      .slice(0, 4);
   } catch {
     relatedProducts = [];
   }
