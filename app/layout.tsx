@@ -1,7 +1,7 @@
-import { SearchBar } from "@/components/search-bar";
-import { ShippingBar } from "@/components/shipping-bar";
-import { QueryProvider } from "@/components/query-provider";
-import { ThemeProvider } from "@/components/theme-provider";
+import { SearchBar } from "@/components/features/search/search-bar";
+import { ShippingBar } from "@/components/layout/shipping-bar";
+import { QueryProvider } from "@/components/providers/query-provider";
+import { ThemeProvider } from "@/components/providers/theme-provider";
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { NuqsAdapter } from "nuqs/adapters/next/app";

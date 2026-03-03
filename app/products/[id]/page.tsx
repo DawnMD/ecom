@@ -1,6 +1,6 @@
-import { ProductDetailBackButton } from "@/components/product-detail-back-button";
-import { ProductCommerceDetails } from "@/components/product-commerce-details";
-import { SuggestedItems } from "@/components/suggested-items";
+import { ProductDetailBackButton } from "@/components/features/products/product-detail-back-button";
+import { ProductCommerceDetails } from "@/components/features/products/product-commerce-details";
+import { SuggestedItems } from "@/components/features/products/suggested-items";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { getProductById, getProducts } from "@/lib/services/product-service";

@@ -1,9 +1,9 @@
-import { Banner } from "@/components/banner";
-import { PopularitySortDropdown } from "@/components/popularity-sort-dropdown";
-import { ProductFilter } from "@/components/product-filter";
-import { ProductGrid } from "@/components/product-grid";
-import { ProductResultsCount } from "@/components/product-results-count";
-import { ViewModeToggle } from "@/components/view-mode-toggle";
+import { Banner } from "@/components/layout/banner";
+import { PopularitySortDropdown } from "@/components/features/products/popularity-sort-dropdown";
+import { ProductFilter } from "@/components/features/products/product-filter";
+import { ProductGrid } from "@/components/features/products/product-grid";
+import { ProductResultsCount } from "@/components/features/products/product-results-count";
+import { ViewModeToggle } from "@/components/features/products/view-mode-toggle";
 import { Button } from "@/components/ui/button";
 import {
   Drawer,

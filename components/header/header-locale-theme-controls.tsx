@@ -10,7 +10,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Separator } from "@/components/ui/separator";
-import { ModeToggle } from "@/components/mode-toggle";
+import { ModeToggle } from "@/components/features/preferences/mode-toggle";
 
 export const HeaderCompactLanguageMenu = () => (
   <DropdownMenu>
