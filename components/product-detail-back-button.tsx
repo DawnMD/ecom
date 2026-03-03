@@ -6,9 +6,17 @@ import { useRouter } from "next/navigation";
 
 export const ProductDetailBackButton = () => {
   const router = useRouter();
+  const handleBackClick = () => {
+    if (window.history.length > 1) {
+      router.back();
+      return;
+    }
+
+    router.push("/");
+  };
 
   return (
-    <Button onClick={() => router.back()} variant="outline" size="lg">
+    <Button onClick={handleBackClick} variant="outline" size="lg">
       <ArrowLeft className="h-4 w-4" />
       Back to catalog
     </Button>
