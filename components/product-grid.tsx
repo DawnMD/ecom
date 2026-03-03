@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import { InlineQueryFeedback } from "@/components/ui/inline-query-feedback";
 import { useProducts } from "@/hooks/use-products";
 import { useViewMode } from "@/hooks/use-view-mode";
 import { useWishlistStore } from "@/stores/use-wishlist-store";
@@ -108,13 +109,16 @@ const ProductCardSkeleton = ({ isListView }: { isListView: boolean }) => (
 
 export const ProductGrid = () => {
   const { viewMode, isListView } = useViewMode();
-  const { products, isPending, isError } = useProducts();
+  const { products, isPending, isError, refetch } = useProducts();
 
   if (isError) {
     return (
-      <div className="rounded-md border border-dashed p-8 text-center text-sm text-muted-foreground">
-        Failed to load products. Please try again.
-      </div>
+      <InlineQueryFeedback
+        className="p-8 text-center"
+        message="Failed to load products. Please try again."
+        retryLabel="Retry products"
+        onRetry={() => void refetch()}
+      />
     );
   }
 
