@@ -34,12 +34,19 @@ import {
 import { ModeToggle } from "@/components/mode-toggle";
 import { useSearch } from "@/hooks/use-search";
 import { getProducts } from "@/lib/services/product-service";
+import { useAuthStore } from "@/stores/use-auth-store";
+import { useCartItemCount, useCartStore } from "@/stores/use-cart-store";
 import { useWishlistStore } from "@/stores/use-wishlist-store";
 
 const SEARCH_DEBOUNCE_MS = 250;
 
 export const SearchBar = () => {
   const { searchQuery, setSearchQuery } = useSearch();
+  const authUser = useAuthStore((state) => state.user);
+  const logout = useAuthStore((state) => state.logout);
+  const hasAuthHydrated = useAuthStore((state) => state.hasHydrated);
+  const cartItemCount = useCartItemCount();
+  const hasCartHydrated = useCartStore((state) => state.hasHydrated);
   const wishlistProductIds = useWishlistStore((state) => state.wishlistProductIds);
   const removeFromWishlist = useWishlistStore((state) => state.removeFromWishlist);
   const hasWishlistHydrated = useWishlistStore((state) => state.hasHydrated);
@@ -81,6 +88,11 @@ export const SearchBar = () => {
     }
 
     router.push(`/?search=${encodeURIComponent(normalizedValue)}`);
+  };
+
+  const handleLogout = () => {
+    logout();
+    router.push("/login");
   };
 
   return (
@@ -129,9 +141,15 @@ export const SearchBar = () => {
                 }
               />
               <DropdownMenuContent>
-                <DropdownMenuItem variant={"destructive"}>
-                  Logout
-                </DropdownMenuItem>
+                {hasAuthHydrated && authUser ? (
+                  <DropdownMenuItem variant={"destructive"} onClick={handleLogout}>
+                    Logout
+                  </DropdownMenuItem>
+                ) : (
+                  <DropdownMenuItem onClick={() => router.push("/login")}>
+                    Login
+                  </DropdownMenuItem>
+                )}
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
@@ -172,14 +190,22 @@ export const SearchBar = () => {
           </Field>
 
           <div className="flex items-center gap-2 md:gap-4">
-            <Button variant={"ghost"} size={"icon"} className="relative">
-              <Badge
-                variant={"destructive"}
-                className="absolute -top-2 -right-2"
-              >
-                <span className="md:hidden">20</span>
-                <span className="hidden md:inline">0</span>
-              </Badge>
+            <Button
+              variant={"ghost"}
+              size={"icon"}
+              className="relative"
+              onClick={() => router.push("/cart")}
+            >
+              {hasCartHydrated ? (
+                <Badge
+                  variant={"destructive"}
+                  className="absolute -top-2 -right-2 min-w-5 justify-center px-1.5"
+                >
+                  {cartItemCount}
+                </Badge>
+              ) : (
+                <Skeleton className="absolute -top-2 -right-2 h-5 w-5 rounded-full" />
+              )}
               <ShoppingCart />
               <span className="sr-only">Cart</span>
             </Button>
@@ -307,20 +333,33 @@ export const SearchBar = () => {
                     className="hidden items-center gap-2 md:flex"
                   >
                     <Avatar size="sm">
-                      <AvatarFallback>MD</AvatarFallback>
+                      <AvatarFallback>
+                        {authUser?.name
+                          ?.split(" ")
+                          .map((value) => value[0])
+                          .join("")
+                          .slice(0, 2)
+                          .toUpperCase() ?? "GU"}
+                      </AvatarFallback>
                     </Avatar>
                     <span className="flex flex-col items-start justify-start text-xs font-light">
-                      <span>Welcome back </span>
-                      <span className="font-bold">John Doe</span>
+                      <span>{authUser ? "Welcome back" : "Account"}</span>
+                      <span className="font-bold">{authUser?.name ?? "Guest user"}</span>
                     </span>
                     <ChevronDownIcon className="size-4" />
                   </Button>
                 }
               />
               <DropdownMenuContent>
-                <DropdownMenuItem variant={"destructive"}>
-                  Logout
-                </DropdownMenuItem>
+                {hasAuthHydrated && authUser ? (
+                  <DropdownMenuItem variant={"destructive"} onClick={handleLogout}>
+                    Logout
+                  </DropdownMenuItem>
+                ) : (
+                  <DropdownMenuItem onClick={() => router.push("/login")}>
+                    Login
+                  </DropdownMenuItem>
+                )}
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
