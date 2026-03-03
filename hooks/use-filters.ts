@@ -4,35 +4,18 @@ import { useQuery } from "@tanstack/react-query";
 import { debounce } from "nuqs";
 import { type StaticMultiselectOption } from "@/components/ui/static-multiselect";
 import { useProductFiltersQueryState } from "@/hooks/use-product-query-states";
-import { MOCK_PRODUCTS } from "@/lib/data/mock-products";
-import { getFilterOptions } from "@/lib/services/product-service";
+import { getFilterOptions, type ProductFilterOptions } from "@/lib/services/product-service";
 
 const FALLBACK_PRICE_MIN = 0;
 const FALLBACK_PRICE_MAX = 100;
 const PRICE_SLIDER_DEBOUNCE_MS = 300;
 
-const getFallbackFilterOptions = () => {
-  const brands = new Set<string>();
-  const sizes = new Set<string>();
-  const colors = new Set<string>();
-  let priceMin = Number.POSITIVE_INFINITY;
-  let priceMax = Number.NEGATIVE_INFINITY;
-
-  for (const product of MOCK_PRODUCTS) {
-    brands.add(product.brand);
-    for (const size of product.sizes) sizes.add(size);
-    for (const color of product.colors ?? []) colors.add(color);
-    priceMin = Math.min(priceMin, product.price);
-    priceMax = Math.max(priceMax, product.price);
-  }
-
-  return {
-    brands: Array.from(brands).sort(),
-    sizes: Array.from(sizes).sort(),
-    colors: Array.from(colors).sort(),
-    priceMin: Number.isFinite(priceMin) ? priceMin : FALLBACK_PRICE_MIN,
-    priceMax: Number.isFinite(priceMax) ? priceMax : FALLBACK_PRICE_MAX,
-  };
+const FALLBACK_FILTER_OPTIONS: ProductFilterOptions = {
+  brands: [],
+  sizes: [],
+  colors: [],
+  priceMin: FALLBACK_PRICE_MIN,
+  priceMax: FALLBACK_PRICE_MAX,
 };
 
 export const useFilters = () => {
@@ -40,17 +23,12 @@ export const useFilters = () => {
 
   const { data: filterOptions, isPending: isLoadingFilters } = useQuery({
     queryKey: ["filters", "options"],
-    queryFn: async () => {
-      try {
-        return await getFilterOptions();
-      } catch {
-        return getFallbackFilterOptions();
-      }
-    },
+    queryFn: getFilterOptions,
+    retry: 1,
     staleTime: 5 * 60_000,
   });
 
-  const resolvedFilterOptions = filterOptions ?? getFallbackFilterOptions();
+  const resolvedFilterOptions = filterOptions ?? FALLBACK_FILTER_OPTIONS;
   const { priceMin, priceMax } = resolvedFilterOptions;
   const clampPrice = (value: number) => Math.max(priceMin, Math.min(priceMax, value));
 

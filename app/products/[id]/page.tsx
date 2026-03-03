@@ -3,16 +3,22 @@ import { ProductCommerceDetails } from "@/components/product-commerce-details";
 import { SuggestedItems } from "@/components/suggested-items";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
-import { MOCK_PRODUCTS } from "@/lib/data/mock-products";
+import { getProductById, getProducts } from "@/lib/services/product-service";
 import { ShieldCheck, Sparkles, Truck } from "lucide-react";
 import type { Metadata } from "next";
 import Image from "next/image";
 import { notFound } from "next/navigation";
+import type { Product } from "@/types/product";
 
 export const dynamicParams = false;
 
-export function generateStaticParams() {
-  return MOCK_PRODUCTS.map((product) => ({ id: product.id }));
+export async function generateStaticParams() {
+  try {
+    const { products } = await getProducts();
+    return products.map((product) => ({ id: product.id }));
+  } catch {
+    return [];
+  }
 }
 
 export async function generateMetadata({
@@ -21,7 +27,12 @@ export async function generateMetadata({
   params: Promise<{ id: string }>;
 }): Promise<Metadata> {
   const { id } = await params;
-  const product = MOCK_PRODUCTS.find((entry) => entry.id === id);
+  let product = null;
+  try {
+    product = await getProductById(id);
+  } catch {
+    return { title: "Product Not Found" };
+  }
 
   if (!product) {
     return { title: "Product Not Found" };
@@ -39,15 +50,26 @@ export default async function ProductDetailPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const product = MOCK_PRODUCTS.find((entry) => entry.id === id);
+  let product = null;
+  try {
+    product = await getProductById(id);
+  } catch {
+    notFound();
+  }
 
   if (!product) {
     notFound();
   }
 
-  const relatedProducts = MOCK_PRODUCTS.filter(
-    (entry) => entry.brand === product.brand && entry.id !== product.id,
-  ).slice(0, 4);
+  let relatedProducts: Product[] = [];
+  try {
+    const { products } = await getProducts({
+      filter: { brand: [product.brand] },
+    });
+    relatedProducts = products.filter((entry) => entry.id !== product.id).slice(0, 4);
+  } catch {
+    relatedProducts = [];
+  }
 
   const mainImage = product.images[0];
   const secondaryImages = product.images.slice(1, 3);
