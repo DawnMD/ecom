@@ -13,7 +13,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 import { getProducts } from "@/lib/services/product-service";
 import { useAuthStore } from "@/stores/use-auth-store";
-import { useCartStore } from "@/stores/use-cart-store";
+import { useCartItems, useCartStore } from "@/stores/use-cart-store";
 
 const formatPrice = (price: number) =>
   `SAR ${price.toLocaleString("en-US", {
@@ -26,7 +26,7 @@ export default function CartPage() {
   const authUser = useAuthStore((state) => state.user);
   const hasAuthHydrated = useAuthStore((state) => state.hasHydrated);
   const hasCartHydrated = useCartStore((state) => state.hasHydrated);
-  const items = useCartStore((state) => state.items);
+  const items = useCartItems();
   const removeFromCart = useCartStore((state) => state.removeFromCart);
   const updateQuantity = useCartStore((state) => state.updateQuantity);
   const productsQuery = useQuery({
