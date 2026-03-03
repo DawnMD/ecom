@@ -34,16 +34,19 @@ const createDisplayName = (email: string) => {
     .join(" ");
 };
 
+const normalizeEmail = (email: string) => email.trim().toLowerCase();
+
 export const useAuthStore = create<AuthState>()(
   persist(
     (set) => ({
       user: null,
       hasHydrated: false,
       login: ({ email }) => {
+        const normalizedEmail = normalizeEmail(email);
         set({
           user: {
-            email,
-            name: createDisplayName(email),
+            email: normalizedEmail,
+            name: createDisplayName(normalizedEmail),
           },
         });
       },
