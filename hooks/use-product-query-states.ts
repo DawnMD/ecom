@@ -27,10 +27,12 @@ const SORT_DEFAULT_VALUE: SortOption = "popular";
 
 const FILTER_QUERY_PARSERS = {
   brand: parseAsNativeArrayOf(parseAsString),
+  category: parseAsString,
   minPrice: parseAsInteger.withDefault(0),
   maxPrice: parseAsInteger.withDefault(Number.MAX_SAFE_INTEGER),
   size: parseAsNativeArrayOf(parseAsString),
   color: parseAsNativeArrayOf(parseAsString),
+  inStock: parseAsStringLiteral(["true"]),
 };
 
 const CART_INTENT_QUERY_PARSERS = {

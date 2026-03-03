@@ -4,6 +4,13 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Slider } from "@/components/ui/slider";
 import {
@@ -14,6 +21,7 @@ import {
   StaticMultiselectResults,
   StaticMultiselectSelectedBadges,
 } from "@/components/ui/static-multiselect";
+import { Toggle } from "@/components/ui/toggle";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { useFilters } from "@/hooks/use-filters";
 
@@ -21,6 +29,7 @@ export const ProductFilter = () => {
   const {
     filters,
     brandOptions,
+    categoryOptions,
     sizeOptions,
     colorOptions,
     isLoadingFilters,
@@ -35,6 +44,8 @@ export const ProductFilter = () => {
     handleMinPriceChange,
     handleMaxPriceChange,
     setBrandFilter,
+    setCategoryFilter,
+    setInStockOnly,
     setSizeFilter,
     setColorFilter,
   } = useFilters();
@@ -44,6 +55,9 @@ export const ProductFilter = () => {
   });
   const loadingPriceMin = 0;
   const loadingPriceMax = 1;
+  const selectedCategoryLabel =
+    categoryOptions.find((option) => option.value === filters.category)?.label ??
+    "All categories";
 
   return (
     <div className="bg-accent p-1.5 rounded-md flex flex-col gap-2">
@@ -88,6 +102,42 @@ export const ProductFilter = () => {
                 />
               </StaticMultiselectList>
             </StaticMultiselect>
+          </Card>
+          <Card className="space-y-3 p-2">
+            <div className="space-y-1.5">
+              <p className="text-sm font-medium">Category</p>
+              <Select
+                value={filters.category ?? "__all__"}
+                onValueChange={(value) =>
+                  setCategoryFilter(value === "__all__" ? null : value)
+                }
+              >
+                <SelectTrigger className="h-9 w-full rounded-md border">
+                  <SelectValue placeholder="All categories">
+                    {selectedCategoryLabel}
+                  </SelectValue>
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="__all__">All categories</SelectItem>
+                  {categoryOptions.map((option) => (
+                    <SelectItem key={option.value} value={option.value}>
+                      {option.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="flex items-center justify-between gap-3 rounded-md border p-2.5">
+              <p className="text-sm font-medium">In stock only</p>
+              <Toggle
+                aria-label="Toggle in stock only filter"
+                variant="outline"
+                pressed={filters.inStock === "true"}
+                onPressedChange={setInStockOnly}
+              >
+                {filters.inStock === "true" ? "On" : "Off"}
+              </Toggle>
+            </div>
           </Card>
           <Card className="p-2 space-y-3">
             {isLoadingFilters ? (

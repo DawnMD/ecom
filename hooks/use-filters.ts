@@ -12,10 +12,27 @@ const PRICE_SLIDER_DEBOUNCE_MS = 300;
 
 const FALLBACK_FILTER_OPTIONS: ProductFilterOptions = {
   brands: [],
+  categories: [],
   sizes: [],
   colors: [],
   priceMin: FALLBACK_PRICE_MIN,
   priceMax: FALLBACK_PRICE_MAX,
+};
+
+const toCategoryLabel = (category: string) => {
+  const normalized = category.trim();
+  if (!normalized) {
+    return category;
+  }
+
+  if (normalized.toLowerCase() === "clothes") {
+    return "Clothing";
+  }
+
+  return normalized
+    .split(/[\s_-]+/)
+    .map((part) => part[0]?.toUpperCase() + part.slice(1).toLowerCase())
+    .join(" ");
 };
 
 export const useFilters = () => {
@@ -42,6 +59,12 @@ export const useFilters = () => {
     label: brand,
     value: brand,
   }));
+  const categoryOptions: StaticMultiselectOption[] = resolvedFilterOptions.categories.map(
+    (category) => ({
+      label: toCategoryLabel(category),
+      value: category,
+    }),
+  );
 
   const selectedMinPrice = clampPrice(filters.minPrice);
   const selectedMaxPrice = Math.max(selectedMinPrice, clampPrice(filters.maxPrice));
@@ -88,6 +111,7 @@ export const useFilters = () => {
   return {
     filters,
     brandOptions,
+    categoryOptions,
     sizeOptions: resolvedFilterOptions.sizes,
     colorOptions: resolvedFilterOptions.colors,
     isLoadingFilters,
@@ -105,6 +129,11 @@ export const useFilters = () => {
     handleMinPriceChange,
     handleMaxPriceChange,
     setBrandFilter: (values: string[]) => setFilters({ brand: values }),
+    setCategoryFilter: (value: string | null) => setFilters({ category: value }),
+    setInStockOnly: (value: boolean) =>
+      setFilters({
+        inStock: value ? "true" : null,
+      }),
     setSizeFilter: (values: string[]) => setFilters({ size: values }),
     setColorFilter: (values: string[]) => setFilters({ color: values }),
   };

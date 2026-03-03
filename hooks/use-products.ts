@@ -18,10 +18,12 @@ export const useProducts = () => {
       getProducts({
         filter: {
           brand: filters.brand && filters.brand.length ? filters.brand : undefined,
+          category: filters.category ?? undefined,
           minPrice: filters.minPrice,
           maxPrice: Number.isFinite(filters.maxPrice) ? filters.maxPrice : undefined,
           sizes: filters.size && filters.size.length ? filters.size : undefined,
           colors: filters.color && filters.color.length ? filters.color : undefined,
+          inStock: filters.inStock === "true" ? true : undefined,
         },
         sort: sortOption,
       }),
