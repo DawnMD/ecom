@@ -192,7 +192,7 @@ export const ProductGrid = () => {
         className={
           isListView
             ? "grid grid-cols-1 gap-6"
-            : "grid grid-cols-2 gap-x-4 gap-y-6 lg:grid-cols-5 lg:gap-x-4 lg:gap-y-7"
+            : "grid grid-cols-1 gap-6 sm:grid-cols-2 sm:gap-x-4 sm:gap-y-6 lg:grid-cols-5 lg:gap-x-4 lg:gap-y-7"
         }
       >
         {Array.from({ length: 6 }).map((_, index) => (
@@ -215,7 +215,7 @@ export const ProductGrid = () => {
       className={
         isListView
           ? "grid grid-cols-1 gap-6"
-          : "grid grid-cols-2 gap-x-4 gap-y-6 lg:grid-cols-5 lg:gap-x-4 lg:gap-y-7"
+          : "grid grid-cols-1 gap-6 sm:grid-cols-2 sm:gap-x-4 sm:gap-y-6 lg:grid-cols-5 lg:gap-x-4 lg:gap-y-7"
       }
     >
       {products.map((product) => (
