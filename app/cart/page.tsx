@@ -1,12 +1,16 @@
 "use client";
 
 import { useEffect, useMemo } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { Minus, Plus, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { InlineQueryFeedback } from "@/components/ui/inline-query-feedback";
 import { Skeleton } from "@/components/ui/skeleton";
+import { cn } from "@/lib/utils";
 import { getProducts } from "@/lib/services/product-service";
 import { useAuthStore } from "@/stores/use-auth-store";
 import { useCartStore } from "@/stores/use-cart-store";
@@ -82,19 +86,21 @@ export default function CartPage() {
     <main className="mx-auto w-full max-w-5xl px-4 py-8 lg:px-8">
       <div className="flex items-center justify-between gap-3">
         <h1 className="text-2xl font-semibold">Your cart</h1>
-        <Button variant="outline" onClick={() => router.push("/")}>
+        <Link
+          href="/"
+          className={buttonVariants({ variant: "outline" })}
+        >
           Continue shopping
-        </Button>
+        </Link>
       </div>
 
       {productsQuery.isError ? (
-        <Card className="mt-6">
-          <CardContent className="p-4">
-            <p className="text-sm text-muted-foreground">
-              Could not load cart items right now. Please refresh and try again.
-            </p>
-          </CardContent>
-        </Card>
+        <InlineQueryFeedback
+          className="mt-6"
+          message="Could not load cart items right now."
+          retryLabel="Retry cart items"
+          onRetry={() => void productsQuery.refetch()}
+        />
       ) : null}
 
       {!productsQuery.isError && productsQuery.isPending ? (
@@ -110,9 +116,12 @@ export default function CartPage() {
             <p className="text-sm text-muted-foreground">
               Your cart is empty. Browse products and add something you love.
             </p>
-            <Button className="mt-3" onClick={() => router.push("/")}>
+            <Link
+              href="/"
+              className={cn(buttonVariants(), "mt-3 inline-flex")}
+            >
               Browse products
-            </Button>
+            </Link>
           </CardContent>
         </Card>
       ) : null}
