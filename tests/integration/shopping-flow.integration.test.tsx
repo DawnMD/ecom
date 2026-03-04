@@ -148,6 +148,7 @@ const getProductsMock = vi.fn(
   async (options?: {
     filter?: ProductFilterType;
     sort?: SortOption;
+    search?: string;
     limit?: number;
     offset?: number;
   }) => {
@@ -314,4 +315,5 @@ describe("shopping flow integration", () => {
       expect(useWishlistStore.getState().wishlistProductIds).toEqual(["p-1"]);
     });
   });
+
 });
