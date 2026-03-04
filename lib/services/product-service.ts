@@ -61,6 +61,7 @@ function sortProducts(products: Product[], sort: SortOption): Product[] {
 export async function getProducts(options?: {
   filter?: ProductFilter;
   sort?: SortOption;
+  search?: string;
   limit?: number;
   offset?: number;
   simulateFailure?: boolean;
@@ -74,6 +75,10 @@ export async function getProducts(options?: {
   const filter = options?.filter;
   if (filter) {
     list = list.filter((p) => matchesFilter(p, filter));
+  }
+  const normalizedSearch = options?.search?.trim().toLowerCase();
+  if (normalizedSearch) {
+    list = list.filter((p) => p.name.toLowerCase().includes(normalizedSearch));
   }
   const total = list.length;
   const sort = options?.sort ?? "popular";

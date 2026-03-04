@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { InlineQueryFeedback } from "@/components/ui/inline-query-feedback";
 import { useCart } from "@/hooks/use-cart";
+import { useIntersectionTrigger } from "@/hooks/use-intersection-trigger";
 import { useProducts } from "@/hooks/use-products";
 import { useViewMode } from "@/hooks/use-view-mode";
 import { useWishlistStore } from "@/stores/use-wishlist-store";
@@ -179,10 +180,31 @@ const ProductCardSkeleton = ({ isListView }: { isListView: boolean }) => (
 
 export const ProductGrid = () => {
   const { viewMode, isListView } = useViewMode();
-  const { products, isPending, isError, refetch } = useProducts();
+  const {
+    products,
+    isPending,
+    isError,
+    refetch,
+    hasNextPage,
+    fetchNextPage,
+    isFetchingNextPage,
+    isFetchNextPageError,
+  } = useProducts();
   const { addToCart } = useCart();
+  const sentinelRef = useRef<HTMLDivElement | null>(null);
 
-  if (isError) {
+  useIntersectionTrigger({
+    elementRef: sentinelRef,
+    enabled: hasNextPage === true && !isFetchingNextPage,
+    onIntersect: () => {
+      if (hasNextPage && !isFetchingNextPage) {
+        void fetchNextPage();
+      }
+    },
+    rootMargin: "300px 0px",
+  });
+
+  if (isError && !products.length) {
     return (
       <InlineQueryFeedback
         className="p-8 text-center"
@@ -218,21 +240,44 @@ export const ProductGrid = () => {
   }
 
   return (
-    <div
-      className={
-        isListView
-          ? "grid grid-cols-1 gap-6"
-          : "grid grid-cols-1 gap-6 sm:grid-cols-2 sm:gap-x-4 sm:gap-y-6 lg:grid-cols-5 lg:gap-x-4 lg:gap-y-7"
-      }
-    >
-      {products.map((product) => (
-        <ProductCard
-          key={product.id}
-          product={product}
-          isListView={isListView}
-          onAddToCart={(productId, size) => addToCart(productId, size, 1)}
-        />
-      ))}
+    <div className="flex flex-col gap-5">
+      <div
+        className={
+          isListView
+            ? "grid grid-cols-1 gap-6"
+            : "grid grid-cols-1 gap-6 sm:grid-cols-2 sm:gap-x-4 sm:gap-y-6 lg:grid-cols-5 lg:gap-x-4 lg:gap-y-7"
+        }
+      >
+        {products.map((product) => (
+          <ProductCard
+            key={product.id}
+            product={product}
+            isListView={isListView}
+            onAddToCart={(productId, size) => addToCart(productId, size, 1)}
+          />
+        ))}
+      </div>
+
+      {isFetchingNextPage ? (
+        <div className="flex items-center justify-center py-2 text-sm text-muted-foreground">
+          Loading more products...
+        </div>
+      ) : null}
+
+      {isFetchNextPageError ? (
+        <div className="flex items-center justify-center gap-3 text-sm text-muted-foreground">
+          <span>Could not load more products.</span>
+          <Button type="button" variant="outline" size="sm" onClick={() => void fetchNextPage()}>
+            Retry
+          </Button>
+        </div>
+      ) : null}
+
+      {!hasNextPage && products.length ? (
+        <div className="py-2 text-center text-sm text-muted-foreground">You have reached the end.</div>
+      ) : null}
+
+      <div ref={sentinelRef} aria-hidden className="h-1" />
     </div>
   );
 };
