@@ -79,6 +79,8 @@ Current automated coverage is a single end-to-end-like UI integration flow in
 - Hero/banner section
 - Desktop sidebar filters + mobile drawer filters
 - URL-synced filters and search via `nuqs`
+- Infinite scrolling with native `IntersectionObserver` + React Query `useInfiniteQuery`
+- Bottom loading state, load-more retry, and end-of-results messaging
 - Skeleton loading states
 - Empty state for no matching products
 - User-facing error handling and retry actions for product/filter fetch failures
@@ -173,8 +175,10 @@ Current automated coverage is a single end-to-end-like UI integration flow in
 
 - Product modal or page: **implemented as page** (justification above)
 - Pagination or infinite scroll:
-  - **Not implemented yet**
-  - Current listing renders all filtered results
+  - **Implemented as infinite scroll**
+  - Uses offset-based paging via `getProducts({ limit, offset })`
+  - `search`, filters, and sort are applied before pagination in the service layer
+  - `page` is intentionally not written to URL during scrolling
 
 ## Assumptions
 
@@ -185,12 +189,10 @@ Current automated coverage is a single end-to-end-like UI integration flow in
 
 ## What I Would Improve With More Time
 
-- Add either:
-  - pagination for predictable performance and easier QA, or
-  - infinite scroll with an intersection observer hook and URL cursor state
 - Add route-level protection middleware strategy for broader auth coverage
 - Expand automated test coverage beyond the existing shopping flow integration test:
   - add focused integration coverage for auth/cart/wishlist edge cases
+  - add focused integration coverage for infinite-scroll edge cases (next-page failure, reset-on-filter change, observer behavior)
   - add browser-level e2e coverage for route transitions and mobile drawer behavior
 - Add stronger accessibility passes (keyboard focus flows, SR announcements for cart updates)
 - Reduce duplicated hydration logic across persisted stores via shared utility patterns
@@ -209,6 +211,5 @@ Current automated coverage is a single end-to-end-like UI integration flow in
 ## Known Gaps
 
 - Automated tests currently include only one primary integration flow
-- No pagination/infinite scroll yet
 - Route protection is implemented at flow/page level rather than centralized middleware
 - Wishlist is not user-scoped yet (it is persisted locally and shared across sessions on the same device)
